@@ -1,20 +1,25 @@
 from db.db import get_connection
 from models.expenses import Expense
-
+import sqlite3
+from utils.exceptions.database_exception import DatabaseException
 def create(expense:Expense):
-    conn = get_connection()
-    cursor = conn.execute(
-        """
-        INSERT INTO expenses (user_id, amount, description, date)
-        VALUES (?, ?, ?, ?)
-        """,
-        (expense.user_id, expense.amount, expense.description, expense.date)
-    )
+    try:
+        with get_connection() as conn:
+            cursor = conn.execute(
+                """
+                INSERT INTO expenses (user_id, amount, description, date)
+                VALUES (?, ?, ?, ?)
+                """,
+                (expense.user_id, expense.amount, expense.description, expense.date)
+            )
 
-    expense.id = cursor.lastrowid
-    conn.commit()
-    conn.close()
+            expense.id = cursor.lastrowid
 
+    except sqlite3.IntegrityError as error:
+        raise DatabaseException("Contraints violated") from error
+    except sqlite3.DatabaseError as error:
+        raise DatabaseException("Database execution failed") from error
+    
     return expense
 
 
