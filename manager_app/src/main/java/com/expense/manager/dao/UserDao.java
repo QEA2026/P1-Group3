@@ -113,4 +113,16 @@ public class UserDao {
 
         return findByUsername(user.getUsername());
     }
+
+    public boolean delete(int id) throws SQLException {
+        String sql = "DELETE FROM users WHERE id = ?";
+
+        try (Connection connection = Database.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, id);
+
+            return statement.executeUpdate() > 0;
+        }
+    }
 }
