@@ -67,6 +67,15 @@ def handle_create_user():
     
     return jsonify(saved_user.__dict__), 201
 
+@app.route('/users/<int:user_id>', methods=['DELETE'])
+def handle_delete_user(user_id):
+    existing = users.get_from_id(user_id)
+    if existing is None:
+        return jsonify({"error": f"User with ID {user_id} not found"}), 404
+
+    users.remove(user_id)
+    return jsonify({"message": f"User {user_id} successfully deleted"}), 200
+
 @app.route('/users', methods=['GET'])
 def handle_get_all_users():
     all_users = users.get_all()

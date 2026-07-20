@@ -32,4 +32,22 @@ public class UserController{
         return dao.validateManagerLogin(request.get("username"), request.get("password"));
     }
 
+    @PostMapping
+    public User createUser(@RequestBody User user) throws SQLException {
+        return dao.create(user);
+    }
+
+    @DeleteMapping("/{id}")
+    public Map<String, String> deleteUser(@PathVariable int id) throws SQLException {
+        boolean deleted = dao.delete(id);
+
+        if (deleted) {
+            return Map.of("message", "User deleted successfully.");
+        }
+
+        throw new RuntimeException("User not found.");
+    }
+
+    
+
 }
