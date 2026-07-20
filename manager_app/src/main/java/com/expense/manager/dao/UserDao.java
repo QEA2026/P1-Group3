@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.expense.manager.db.Database;
@@ -14,10 +15,17 @@ import com.expense.manager.models.User;
 
 @Repository
 public class UserDao {
+    private final Database database;
+
+    @Autowired
+    public UserDao(Database database) {
+        this.database = database;
+    }
+
     public User findById(int id) throws SQLException {
         String sql = "SELECT * FROM users WHERE id = ?";
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
 
@@ -34,7 +42,7 @@ public class UserDao {
     public User findByUsername(String username) throws SQLException {
         String sql = "SELECT * FROM users WHERE username = ?";
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, username);
 
@@ -52,7 +60,7 @@ public class UserDao {
         String sql = "SELECT * FROM users";
         List<User> users = new ArrayList<>();
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
@@ -72,7 +80,7 @@ public class UserDao {
               AND role = 'Manager'
             """;
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, username);
             statement.setString(2, password);
