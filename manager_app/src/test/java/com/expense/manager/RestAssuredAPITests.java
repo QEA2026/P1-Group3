@@ -1,6 +1,13 @@
 package com.expense.manager;
 //REST assured Setup and First Tests
 
+/**
+ * HOW TO RUN
+ * 
+ * Start with an EMPTY database - run db.py instead of seed.py in employee_app/db
+ * Database is assumed empty and is cleared completely between and after tests.
+ */
+
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -20,6 +27,10 @@ public class RestAssuredAPITests {
     @AfterAll
     static void teardown() {
         RestAssured.reset();
+    }
+
+    @AfterEach
+    static void cleanup() {
     }
 
     @Test
@@ -59,7 +70,7 @@ public class RestAssuredAPITests {
     }
 
     @Test
-    @DisplayName("Alll expenses GET path")
+    @DisplayName("All expenses GET path")
     void get_expenses_returnsSuccess() {
         given()
                 .log().all()
