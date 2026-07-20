@@ -94,4 +94,23 @@ public class UserDao {
             resultSet.getString("role")
         );
     }
+
+    public User create(User user) throws SQLException {
+        String sql = """
+            INSERT INTO users (username, password, role)
+            VALUES (?, ?, ?)
+            """;
+
+        try (Connection connection = Database.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, user.getUsername());
+            statement.setString(2, user.getPassword());
+            statement.setString(3, user.getRole());
+
+            statement.executeUpdate();
+        }
+
+        return findByUsername(user.getUsername());
+    }
 }

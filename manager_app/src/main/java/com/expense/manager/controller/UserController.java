@@ -32,4 +32,11 @@ public class UserController{
         return dao.validateManagerLogin(request.get("username"), request.get("password"));
     }
 
+    @PostMapping
+    public User createUser(@RequestBody User user) throws SQLException {
+        return dao.create(user);
+    }
+
+    
+
 }
