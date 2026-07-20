@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 @app.route('/health', methods=['GET'])
 def handle_get_backend_health():
-    return jsonify(dict({"status":"ok"})), 201
+    return jsonify(dict({"status":"ok"})), 200
 
 @app.route('/approvals', methods=['GET'])
 def handle_get_all_approvals():
