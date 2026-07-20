@@ -87,3 +87,15 @@ def get_from_username_password(username, password):
         role=row[3]
     )
 
+
+def remove(user_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "DELETE FROM users WHERE id = ?",
+        (user_id,)
+    )
+
+    conn.commit()
+    conn.close()
