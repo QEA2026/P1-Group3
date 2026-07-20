@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.expense.manager.db.Database;
@@ -15,10 +16,18 @@ import com.expense.manager.models.Approval;
 
 @Repository
 public class ApprovalDao {
+
+    private final Database database;
+
+    @Autowired
+    public ApprovalDao(Database database) {
+        this.database = database;
+    }
+
     public Approval findById(int id) throws SQLException {
         String sql = "SELECT * FROM approvals WHERE id = ?";
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
 
@@ -35,7 +44,7 @@ public class ApprovalDao {
     public Approval findByExpenseId(int expenseId) throws SQLException {
         String sql = "SELECT * FROM approvals WHERE expense_id = ?";
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, expenseId);
 
@@ -53,7 +62,7 @@ public class ApprovalDao {
         String sql = "SELECT * FROM approvals";
         List<Approval> approvals = new ArrayList<>();
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
@@ -72,7 +81,7 @@ public class ApprovalDao {
             """;
         List<Approval> approvals = new ArrayList<>();
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
@@ -90,7 +99,7 @@ public class ApprovalDao {
             WHERE expense_id = ?
             """;
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, status);
             statement.setInt(2, reviewerId);
@@ -110,7 +119,7 @@ public class ApprovalDao {
               AND status <> 'pending'
             """;
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, comment);
             statement.setInt(2, expenseId);
