@@ -62,7 +62,6 @@ def handle_create_user():
         password=data['password'],
         role=data['role']
     )
-    print(f"debug: trying to create user {new_user}")
 
     saved_user = users.create(new_user)
     
@@ -70,7 +69,6 @@ def handle_create_user():
 
 @app.route('/users/<int:user_id>', methods=['DELETE'])
 def handle_delete_user(user_id):
-    print(f"DEBUG: trying to delete user {user_id}")
     existing = users.get_from_id(user_id)
     if existing is None:
         return jsonify({"error": f"User with ID {user_id} not found"}), 404
