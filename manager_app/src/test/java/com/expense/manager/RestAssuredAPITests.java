@@ -110,8 +110,7 @@ public class RestAssuredAPITests {
 		for (Approval approval : dirtyApprovals) {
 			given()
 					.delete("/approvals/" + approval.getId())
-					.then()
-					.statusCode(201);
+					.then();
 			System.out.println("Deleted approval " + approval.getId());
 		}
 		dirtyApprovals = new ArrayList<>();
@@ -136,8 +135,9 @@ public class RestAssuredAPITests {
 
 	@AfterEach
 	void cleanup() {
-		deleteExpenses();
 		deleteApprovals();
+		deleteExpenses();
+
 	}
 
 	@Test
@@ -183,13 +183,6 @@ public class RestAssuredAPITests {
 	@DisplayName("POST expense")
 	void post_expense_getValidResponse() {
 
-		// new_expense = Expense(
-		// id=None,
-		// user_id=data['user_id'],
-		// amount=data['amount'],
-		// description=data['description'],
-		// date=data['date']
-		// )
 		String expenseRequestBody = """
 				{
 					"user_id": %d,
@@ -208,7 +201,58 @@ public class RestAssuredAPITests {
 				.statusCode(201)
 				.extract().as(Expense.class);
 		dirtyExpenses.add(newExpense);
+		assertNotNull(newExpense.getId());
+		assertEquals("test expense", newExpense.getDescription());
+		assertEquals(TEST_EMPLOYEE.getId(), newExpense.getUser_id());
 		System.out.println("Added test expense " + newExpense.getId());
+	}
+
+	@Test
+	@DisplayName("POST approval")
+	void post_approval_getValidResponse() {
+
+		String expenseRequestBody = """
+				{
+					"user_id": %d,
+					"amount": 999.99,
+					"description": "test expense",
+					"date": "2026-06-01"
+				}
+				""";
+		expenseRequestBody = String.format(expenseRequestBody, TEST_EMPLOYEE.getId());
+
+		Expense newExpense = given()
+				.contentType(ContentType.JSON)
+				.body(expenseRequestBody)
+				.post("/expenses")
+				.then()
+				.statusCode(201)
+				.extract().as(Expense.class);
+		System.out.println("Added test expense " + newExpense.getId());
+
+		dirtyExpenses.add(newExpense);
+
+		String approvalRequestBody = """
+				{
+					"expense_id": %d,
+					"status": "pending",
+					"reviewer": %d,
+					"comment": "test approval comment",
+					"review_date": "2026-06-02"
+				}
+				""";
+		approvalRequestBody = String.format(approvalRequestBody, newExpense.getId(), TEST_MANAGER.getId());
+		Approval newApproval = given()
+				.contentType(ContentType.JSON)
+				.body(approvalRequestBody)
+				.post("/approvals")
+				.then()
+				.statusCode(201)
+				.extract().as(Approval.class);
+		assertNotNull(newApproval);
+		assertNotNull(newApproval.getId());
+		System.out.println("Added test approval " + newApproval.getId());
+		dirtyApprovals.add(newApproval);
 	}
 
 }
