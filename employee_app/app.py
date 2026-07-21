@@ -62,6 +62,7 @@ def handle_create_user():
         password=data['password'],
         role=data['role']
     )
+    print(f"debug: trying to create user {new_user}")
 
     saved_user = users.create(new_user)
     
@@ -69,12 +70,13 @@ def handle_create_user():
 
 @app.route('/users/<int:user_id>', methods=['DELETE'])
 def handle_delete_user(user_id):
+    print(f"DEBUG: trying to delete user {user_id}")
     existing = users.get_from_id(user_id)
     if existing is None:
         return jsonify({"error": f"User with ID {user_id} not found"}), 404
 
     users.remove(user_id)
-    return jsonify({"message": f"User {user_id} successfully deleted"}), 200
+    return jsonify({"message": f"User {user_id} successfully deleted"}), 201
 
 @app.route('/users', methods=['GET'])
 def handle_get_all_users():
@@ -130,7 +132,7 @@ def handle_edit_expense(expense_id):
     if updated_expense is None:
         return jsonify({"error": f"Expense with ID {expense_id} not found"}), 404
         
-    return jsonify(updated_expense.__dict__), 200
+    return jsonify(updated_expense.__dict__), 201
 
 @app.route('/expenses/<int:expense_id>', methods=['DELETE'])
 def handle_delete_expense(expense_id):
@@ -139,7 +141,7 @@ def handle_delete_expense(expense_id):
         return jsonify({"error": f"Expense with ID {expense_id} not found"}), 404
         
     expenses.remove(expense_id)
-    return jsonify({"message": f"Expense {expense_id} successfully deleted"}), 200
+    return jsonify({"message": f"Expense {expense_id} successfully deleted"}), 201
 
 @app.route('/expenses', methods=['GET'])
 def handle_get_all_expenses():
