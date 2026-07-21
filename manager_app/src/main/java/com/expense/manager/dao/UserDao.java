@@ -109,7 +109,7 @@ public class UserDao {
             VALUES (?, ?, ?)
             """;
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
             PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, user.getUsername());
@@ -125,7 +125,7 @@ public class UserDao {
     public boolean delete(int id) throws SQLException {
         String sql = "DELETE FROM users WHERE id = ?";
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
             PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, id);

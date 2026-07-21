@@ -2,12 +2,15 @@ from controllers import approvals, expenses, users
 from models.approvals import Approval
 from models.users import User
 from models.expenses import Expense
+from flask_cors import CORS
 
 import os
 
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
+
+CORS(app)
 
 @app.route('/health', methods=['GET'])
 def handle_get_backend_health():
