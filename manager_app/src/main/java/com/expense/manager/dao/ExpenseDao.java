@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.expense.manager.db.Database;
@@ -14,10 +15,18 @@ import com.expense.manager.models.Expense;
 
 @Repository
 public class ExpenseDao {
+
+    private final Database database;
+
+    @Autowired
+    public ExpenseDao(Database database) {
+        this.database = database;
+    }
+
     public Expense findById(int id) throws SQLException {
         String sql = "SELECT * FROM expenses WHERE id = ?";
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
 
@@ -35,7 +44,7 @@ public class ExpenseDao {
         String sql = "SELECT * FROM expenses";
         List<Expense> expenses = new ArrayList<>();
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
@@ -56,7 +65,7 @@ public class ExpenseDao {
                         """;
         List<Expense> expenses = new ArrayList<>();
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             
             statement.setString(1, status);
@@ -75,7 +84,7 @@ public class ExpenseDao {
         String sql = "SELECT * FROM expenses WHERE user_id = ?";
         List<Expense> expenses = new ArrayList<>();
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, userId);
 
@@ -93,7 +102,7 @@ public class ExpenseDao {
         String sql = "SELECT * FROM expenses WHERE date = ?";
         List<Expense> expenses = new ArrayList<>();
 
-        try (Connection connection = Database.getConnection();
+        try (Connection connection = database.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, date);
 
