@@ -24,22 +24,26 @@ def create(expense:Expense):
 
 
 def edit(expense):
-    conn = get_connection()
-    cursor = conn.execute(
-        """
-        UPDATE expenses
-        SET amount = ?, description = ?, date = ?
-        WHERE id = ?
-        """,
-        (expense.amount, expense.description, expense.date, expense.id)
-    )
+    try:
+        with get_connection() as conn:
+            cursor = conn.execute(
+                """
+                UPDATE expenses
+                SET amount = ?, description = ?, date = ?
+                WHERE id = ?
+                """,
+                (expense.amount, expense.description, expense.date, expense.id)
+            )
 
-    rows_updated = cursor.rowcount
-    conn.commit()
-    conn.close()    
+            rows_updated = cursor.rowcount
 
-    if rows_updated == 0:
-        return None
+            if rows_updated == 0:
+                return None
+            
+    except sqlite3.IntegrityError as error:
+        raise DatabaseException("Contraints violated") from error
+    except sqlite3.DatabaseError as error:
+        raise DatabaseException("Database execution failed") from error
 
     return expense
 
