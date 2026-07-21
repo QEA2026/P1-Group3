@@ -119,6 +119,8 @@ def handle_create_expense():
 
 @app.route('/expenses/<int:expense_id>', methods=['PUT'])
 def handle_edit_expense(expense_id):
+    if expenses.get_from_id(expense_id) is None:
+        return jsonify({"error": f"Expense with ID {expense_id} not found"}), 404
     data = request.json
     expense_to_update = Expense(
         id=expense_id,
@@ -127,7 +129,6 @@ def handle_edit_expense(expense_id):
         description=data['description'],
         date=data['date']
     )
-    
     updated_expense = expenses.edit(expense_to_update)
     if updated_expense is None:
         return jsonify({"error": f"Expense with ID {expense_id} not found"}), 404

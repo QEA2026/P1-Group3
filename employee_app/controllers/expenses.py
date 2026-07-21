@@ -24,6 +24,9 @@ def create(expense:Expense):
 
 
 def edit(expense):
+    exists = get_from_id(expense.id)
+    if exists is None:
+        return None
     conn = get_connection()
     cursor = conn.execute(
         """
