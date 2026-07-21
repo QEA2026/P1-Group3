@@ -12,6 +12,8 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.expense.manager.models.Approval;
 import com.expense.manager.models.Expense;
@@ -253,6 +255,31 @@ public class RestAssuredAPITests {
 		assertNotNull(newApproval.getId());
 		System.out.println("Added test approval " + newApproval.getId());
 		dirtyApprovals.add(newApproval);
+	}
+
+	@Test
+	@DisplayName("Test login with valid credentials")
+	void post_userslogin_validCredentialsGetsLogin() {
+		List<User> usersToTest = new ArrayList<>();
+		usersToTest.add(TEST_EMPLOYEE);
+		usersToTest.add(TEST_MANAGER);
+		for (User user : usersToTest) {
+			String loginRequestBody = """
+					{
+						"username": "%s",
+						"password": "%s"
+					}
+					""";
+			loginRequestBody = String.format(loginRequestBody, user.getUsername(), user.getPassword());
+			User responseUser = given()
+					.contentType(ContentType.JSON)
+					.body(loginRequestBody)
+					.post("/users/login")
+					.then()
+					.statusCode(200)
+					.extract().as(User.class);
+			assertEquals(responseUser.getId(), user.getId());
+		}
 	}
 
 }
