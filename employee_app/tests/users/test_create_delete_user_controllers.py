@@ -22,6 +22,13 @@ class TestCreateUser:
         assert result.username == "username"
         assert result.password == "password"
         assert result.role == "Employee"
+        conn.execute.assert_called_once_with(
+            """
+        INSERT INTO users (username, password, role)
+        VALUES (?, ?, ?)
+        """,
+            ("username", "password", "Employee")
+        )
 
 
 class TestRemoveUser:
