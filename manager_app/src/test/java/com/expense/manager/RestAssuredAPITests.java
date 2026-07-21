@@ -19,6 +19,7 @@ import com.expense.manager.models.User;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,52 @@ public class RestAssuredAPITests {
 		System.out.println("Test manager ID: " + TEST_MANAGER.getId());
 	}
 
+	static void deleteUsers() {
+		if (TEST_EMPLOYEE != null) {
+			given()
+					.delete("/users/" + TEST_EMPLOYEE.getId())
+					.then()
+					.statusCode(201);
+			TEST_EMPLOYEE = null;
+		}
+		if (TEST_MANAGER != null) {
+			given()
+					.delete("/users/" + TEST_MANAGER.getId())
+					.then()
+					.statusCode(201);
+			TEST_MANAGER = null;
+		}
+	}
+
+	static void deleteExpenses() {
+		if (dirtyExpenses == null || dirtyExpenses.size() == 0) {
+			return;
+		}
+		for (Expense expense : dirtyExpenses) {
+			given()
+					.delete("/expenses/" + expense.getId())
+					.then()
+					.statusCode(201);
+			System.out.println("Deleted expense " + expense.getId());
+		}
+		dirtyExpenses = new ArrayList<>();
+		System.out.println("dirtyExpenses cleared.");
+	}
+
+	static void deleteApprovals() {
+		if (dirtyApprovals == null || dirtyApprovals.size() == 0) {
+			return;
+		}
+		for (Approval approval : dirtyApprovals) {
+			given()
+					.delete("/approvals/" + approval.getId())
+					.then()
+					.statusCode(201);
+			System.out.println("Deleted approval " + approval.getId());
+		}
+		dirtyApprovals = new ArrayList<>();
+	}
+
 	@BeforeAll
 	static void setup() {
 		RestAssured.baseURI = "http://127.0.0.1:8080"; // change this when URI changes!
@@ -77,52 +124,20 @@ public class RestAssuredAPITests {
 
 		dirtyExpenses = new ArrayList<>();
 		dirtyApprovals = new ArrayList<>();
+		initializeUsers();
 
 	}
 
 	@AfterAll
 	static void teardown() {
-
+		deleteUsers();
 		RestAssured.reset();
-	}
-
-	@BeforeEach
-	void initialize() {
-		initializeUsers();
 	}
 
 	@AfterEach
 	void cleanup() {
-		given()
-				.when()
-				.delete("/users/" + TEST_EMPLOYEE.getId())
-				.then()
-				.statusCode(201);
-
-		System.out.println("Deleted test employee " + TEST_EMPLOYEE.getId());
-
-		given()
-				.when()
-				.delete("/users/" + TEST_MANAGER.getId())
-				.then()
-				.statusCode(201);
-
-		System.out.println("Deleted test manager " + TEST_MANAGER.getId());
-		for (Expense expense : dirtyExpenses) {
-			given()
-					.when()
-					.delete("/expenses/" + expense.getId())
-					.then()
-					.statusCode(201);
-
-		}
-		for (Approval approval : dirtyApprovals) {
-			given()
-					.when()
-					.delete("/approvals/" + approval.getId())
-					.then()
-					.statusCode(201);
-		}
+		deleteExpenses();
+		deleteApprovals();
 	}
 
 	@Test
@@ -165,49 +180,35 @@ public class RestAssuredAPITests {
 	}
 
 	@Test
-	@DisplayName("POST new expense")
-	void post_newExpense_returnValidResponse() {
-		String requestBody = """
-				{
-				    "user_id": %d,
-				    "amount": 999.99,
-				    "description": "test expense",
-				    "date": "2026-03-12"
-				}
-				""";
-		requestBody = String.format(requestBody, TEST_EMPLOYEE.getId());
-		System.out.println(requestBody);
-	}
+	@DisplayName("POST expense")
+	void post_expense_getValidResponse() {
 
-	@Test
-	@DisplayName("POST new approval")
-	void post_newApproval_returnValidResponse() {
-		String requestBody = """
+		// new_expense = Expense(
+		// id=None,
+		// user_id=data['user_id'],
+		// amount=data['amount'],
+		// description=data['description'],
+		// date=data['date']
+		// )
+		String expenseRequestBody = """
 				{
-				"expense_id": 999,
-				"status": "approved",
-				"reviewer": 4,
-				"comment": "test",
-				"review_date": "2026-07-17"
+					"user_id": %d,
+					"amount": 999.99,
+					"description": "test expense",
+					"date": "2026-06-01"
 				}
 				""";
+		expenseRequestBody = String.format(expenseRequestBody, TEST_EMPLOYEE.getId());
+
 		Expense newExpense = given()
 				.contentType(ContentType.JSON)
-				.body(requestBody)
-				.when()
-				.post("/approvals")
+				.body(expenseRequestBody)
+				.post("/expenses")
 				.then()
 				.statusCode(201)
-				.body("expense_id", notNullValue())
 				.extract().as(Expense.class);
 		dirtyExpenses.add(newExpense);
-		Approval newApproval = given()
-				.when()
-				.get("/approvals/expense/" + newExpense.getId())
-				.then()
-				.statusCode(200)
-				.extract().as(Approval.class);
-		dirtyApprovals.add(newApproval);
-
+		System.out.println("Added test expense " + newExpense.getId());
 	}
+
 }
