@@ -77,7 +77,7 @@ def handle_delete_user(user_id):
         return jsonify({"error": f"User with ID {user_id} not found"}), 404
 
     users.remove(user_id)
-    return jsonify({"message": f"User {user_id} successfully deleted"}), 200
+    return jsonify({"message": f"User {user_id} successfully deleted"}), 201
 
 @app.route('/users', methods=['GET'])
 def handle_get_all_users():
@@ -120,6 +120,8 @@ def handle_create_expense():
 
 @app.route('/expenses/<int:expense_id>', methods=['PUT'])
 def handle_edit_expense(expense_id):
+    if expenses.get_from_id(expense_id) is None:
+        return jsonify({"error": f"Expense with ID {expense_id} not found"}), 404
     data = request.json
     expense_to_update = Expense(
         id=expense_id,
@@ -128,12 +130,11 @@ def handle_edit_expense(expense_id):
         description=data['description'],
         date=data['date']
     )
-    
     updated_expense = expenses.edit(expense_to_update)
     if updated_expense is None:
         return jsonify({"error": f"Expense with ID {expense_id} not found"}), 404
         
-    return jsonify(updated_expense.__dict__), 200
+    return jsonify(updated_expense.__dict__), 201
 
 @app.route('/expenses/<int:expense_id>', methods=['DELETE'])
 def handle_delete_expense(expense_id):
@@ -142,7 +143,16 @@ def handle_delete_expense(expense_id):
         return jsonify({"error": f"Expense with ID {expense_id} not found"}), 404
         
     expenses.remove(expense_id)
-    return jsonify({"message": f"Expense {expense_id} successfully deleted"}), 200
+    return jsonify({"message": f"Expense {expense_id} successfully deleted"}), 201
+
+# implemented for API testing cleanup
+@app.route('/approvals/<int:approval_id>', methods=['DELETE'])
+def handle_delete_approval(approval_id):
+    existing = approvals.get_from_id(approval_id)
+    if existing is None:
+        return jsonify({"error": f"Approval with ID {approval_id} not found"}, 404)
+    approvals.remove(approval_id)
+    return jsonify({"message": f"Approval {approval_id} successfully deleted"}, 201)
 
 @app.route('/expenses', methods=['GET'])
 def handle_get_all_expenses():

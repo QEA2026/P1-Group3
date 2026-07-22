@@ -92,3 +92,16 @@ def get_from_expenseid(id:int):
             comment=row[4],
             review_date=row[5]
     )
+
+# implemented for API testing cleanup - will not be used in application
+def remove(id:int):
+    conn = get_connection()
+    conn.execute(
+        """
+        DELETE FROM approvals WHERE id = ?
+        """,
+        (id,)
+    )
+
+    conn.commit()
+    conn.close()
