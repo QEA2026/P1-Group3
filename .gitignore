@@ -15,3 +15,8 @@ __pycache__/
 *.class
 manager_app/bin/
 manager_app/target/
+
+#allure results
+allure-results/
+allure-report/
+combined-allure-results/
