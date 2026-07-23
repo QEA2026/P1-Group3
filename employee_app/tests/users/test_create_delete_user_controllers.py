@@ -50,7 +50,8 @@ class TestRemoveUser:
 
         conn.commit.assert_called_once()
         conn.close.assert_called_once()
-
+        
+    @patch("controllers.users.get_connection")
     def test_remove_invalid_user(self, mock_get_connection):
         conn = MagicMock()
         cursor = MagicMock()
