@@ -59,14 +59,40 @@ class TestGetAllApprovals:
         assert result[2].review_date == "2026-07-23"
 
 
-    class TestGetFromId:
+class TestGetFromId:
+    @patch("controllers.approvals.get_connection")
+    def test_get_from_valid_id(self, mock_get_connection):
+        conn = MagicMock()
+        mock_get_connection.return_value = conn
+
+        conn.execute.return_value.fetchone.return_value = (1, 40, "approved", 7, "Looks good", "2026-07-23")
+        result = get_from_id(1)
+
+        assert result.id == 1
+        assert result.expense_id == 40
+        assert result.status == "approved"
+        assert result.reviewer == 7
+        assert result.comment == "Looks good"
+        assert result.review_date == "2026-07-23"
+
+    @patch("controllers.approvals.get_connection")
+    def test_get_from_invalid_id(self, mock_get_connection):
+        conn = MagicMock()
+        mock_get_connection.return_value = conn
+
+        conn.execute.return_value.fetchone.return_value = None
+        result = get_from_id(10021)
+
+        assert result is None
+
+class TestGetFromExpenseId:
         @patch("controllers.approvals.get_connection")
-        def test_get_from_valid_id(self, mock_get_connection):
+        def test_get_from_valid_expense_id(self, mock_get_connection):
             conn = MagicMock()
             mock_get_connection.return_value = conn
     
-            conn.execute.return_value.fetchall.return_value = (1, 40, "approved", 7, "Looks good", "2026-07-23"),
-            result = get_from_id(1)
+            conn.execute.return_value.fetchone.return_value = (1, 40, "approved", 7, "Looks good", "2026-07-23")
+            result = get_from_expenseid(1)
 
             assert result.id == 1
             assert result.expense_id == 40
@@ -74,3 +100,27 @@ class TestGetAllApprovals:
             assert result.reviewer == 7
             assert result.comment == "Looks good"
             assert result.review_date == "2026-07-23"
+
+        @patch("controllers.approvals.get_connection")
+        def test_get_from_invalid_expense_id(self, mock_get_connection):
+            conn = MagicMock()
+            mock_get_connection.return_value = conn
+    
+            conn.execute.return_value.fetchone.return_value = None
+            result = get_from_expenseid(10021)
+
+            assert result is None
+
+class TestRemoveApproval:
+    @patch("controllers.approvals.get_connection")
+    def test_remove(self, mock_get_connection):
+        conn = MagicMock()
+        mock_get_connection.return_value = conn
+
+        remove(99)
+
+        sql, params = conn.execute.call_args.args
+        
+        assert "DELETE FROM approvals WHERE id = ?" in sql
+        assert params == (99,)
+        
