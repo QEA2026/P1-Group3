@@ -1,26 +1,28 @@
 import { useState } from 'react'
 import { employeeApi } from '../api/employeeApi'
-import type { User } from '../types/models'
+import type { Expense, User } from '../types/models'
 
 interface EditExpenseProps {
   user: User
-  onCreated: () => void
+  onUpdated: (expense: Expense) => void
   onCancel: () => void
+  expense: Expense
 }
 
-export default function SubmitExpense({
+export default function EditExpense({
   user,
-  onCreated,
+  onUpdated,
   onCancel,
+  expense
 }: EditExpenseProps) {
   const [amount, setAmount] =
-    useState('')
+    useState(String(expense.amount))
 
   const [description, setDescription] =
-    useState('')
+    useState(expense.description)
 
   const [date, setDate] =
-    useState('')
+    useState(expense.date)
 
   const [error, setError] =
     useState('')
@@ -37,28 +39,20 @@ export default function SubmitExpense({
     setLoading(true)
 
     try {
-      const expense =
-        await employeeApi.createExpense({
-          user_id: user.id,
-          amount: Number(amount),
-          description,
-          date,
-        })
+        const updated_expense = {
+            user_id: user.id,
+            amount: Number(amount),
+            description,
+            date
+        }
+        await employeeApi.updateExpense(expense.id, updated_expense)
 
-      await employeeApi.createApproval({
-        expense_id: expense.id,
-        status: 'pending',
-        reviewer: null,
-        comment: '',
-        review_date: '',
-      })
-
-      onCreated()
+        onUpdated({...updated_expense, id: expense.id})
     } catch (error) {
       console.error(error)
 
       setError(
-        'Failed to submit expense.'
+        'Failed to update expense.'
       )
     } finally {
       setLoading(false)
@@ -69,12 +63,8 @@ export default function SubmitExpense({
     <div className="mx-auto max-w-2xl">
       <div className="mb-6">
         <h2 className="text-3xl font-bold text-slate-900">
-          Submit Expense
+          Edit Expense
         </h2>
-
-        <p className="mt-2 text-slate-500">
-          Submit a new expense report for approval.
-        </p>
       </div>
 
       <form
@@ -102,7 +92,6 @@ export default function SubmitExpense({
                   event.target.value
                 )
               }
-              placeholder="Enter expense amount"
               required
               className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
             />
@@ -125,7 +114,6 @@ export default function SubmitExpense({
                   event.target.value
                 )
               }
-              placeholder="Describe the expense"
               rows={4}
               required
               className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
@@ -187,7 +175,7 @@ export default function SubmitExpense({
             >
               {loading
                 ? 'Updating...'
-                : 'Edit Expense'}
+                : 'Update'}
             </button>
           </div>
         </div>
