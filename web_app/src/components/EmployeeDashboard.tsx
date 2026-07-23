@@ -57,7 +57,7 @@ export default function EmployeeDashboard({
               user.id
             )
 
-      setExpenses(data)
+      setExpenses(data.sort((a, b) => b.id - a.id))
     } catch (error) {
       console.error(error)
       setExpenses([])
