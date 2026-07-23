@@ -7,6 +7,7 @@ import type {
   User,
 } from '../types/models'
 import { ReviewModal } from './ReviewModal'
+import { DecisionModal } from './DecisionModal'
 
 interface ManagerDashboardProps {
   user: User
@@ -58,17 +59,26 @@ export default function ManagerDashboard({
         setExpenseToReview(null)
     }
 
+    const handleSubmitDecision = async (expenseId: number, status: string, reviewId: number, comment: string) => {
+        if(expenseToReview){
+            managerApi.updateApprovalStatus(expenseId, status, reviewId, comment)
+        }
+        approvals[expenseId].status = status
+        handleExitReview()
+    }
+
     const handleReview = (expense: Expense, approval: Approval) => {
         const review = {
-             user_id: expense.user_id,
-             expense_id: expense.id,
-             amount: expense.amount,
-             description: expense.description,
-             date: expense.date,
-             status: approval.status,
-             reviewer: approval.reviewer!,
-             comment: approval.comment!,
-             review_date: approval.review_date!
+                approval_id: approval.id,
+                user_id: expense.user_id,
+                expense_id: expense.id,
+                amount: expense.amount,
+                description: expense.description,
+                date: expense.date,
+                status: approval.status,
+                reviewer: approval.reviewer,
+                comment: approval.comment,
+                review_date: approval.review_date
         }
 
         setExpenseToReview(review)
@@ -77,35 +87,39 @@ export default function ManagerDashboard({
     async function loadApprovals(
     initialExpenses: Expense[]
     ): Promise<Record<number, Approval>> {
-        const approvalEntries = await Promise.all(
-            initialExpenses.map(async (expense) => {
-                try {
-                    const approval =
-                    await managerApi.getApprovalByExpenseId(
-                        expense.id
-                    )
+    const approvalEntries = await Promise.all(
+        initialExpenses.map(async (expense) => {
+        try {
+            const approval =
+            await managerApi.getApprovalByExpenseId(
+                expense.id
+            )
 
-                    return [
-                    expense.id,
-                    approval,
-                    ] as const
-                } catch {
-                    return null
-                }
-            })
-        )
-
-        const approvalMap: Record<number, Approval> = {}
-
-        for (const entry of approvalEntries) {
-            if (entry) {
-            approvalMap[entry[0]] = entry[1]
+            if (!approval) {
+            return null
             }
+
+            return [
+            expense.id,
+            approval,
+            ] as const
+        } catch {
+            return null
         }
+        })
+    )
 
-        setApprovals(approvalMap)
+    const approvalMap: Record<number, Approval> = {}
 
-        return approvalMap
+    for (const entry of approvalEntries) {
+        if (entry) {
+        approvalMap[entry[0]] = entry[1]
+        }
+    }
+
+    setApprovals(approvalMap)
+
+    return approvalMap
     }
 
   async function loadExpenses() {
@@ -243,10 +257,6 @@ export default function ManagerDashboard({
                     const approval =
                         approvals[expense.id]
 
-                    const isPending =
-                        approval?.status ===
-                        'pending'
-
                     return (
                     <tr
                         key={expense.id}
@@ -291,34 +301,12 @@ export default function ManagerDashboard({
                         </td>
 
                         <td className="px-6 py-4">
-                            {isPending ? (
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() =>
-                                        {}
-                                        }
-                                        className="rounded-lg bg-green-500 px-3 py-2 text-xs font-semibold text-black hover:bg-green-600 disabled:opacity-40"
-                                    >
-                                        Approve
-                                    </button>
-
-                                    <button
-                                        onClick={() =>
-                                        {}
-                                        }
-                                        className="rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-40"
-                                    >
-                                        Deny
-                                    </button>
-                                </div>
-                            ) : (
-                                <button
-                                    onClick={()=>handleReview(expense, approvals[expense.id])}
-                                    className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
-                                >
-                                    Review
-                                </button>
-                            )}
+                        <button
+                            onClick={()=>handleReview(expense, approval)}
+                            className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                        >
+                            Review
+                        </button>
                         </td>
                     </tr>
                 )})}
@@ -353,8 +341,11 @@ export default function ManagerDashboard({
             </div>
             </div>
         </div>
-        {expenseToReview && <ReviewModal isManager={true} review={expenseToReview} onClose={handleExitReview}/>}
+        {expenseToReview && (expenseToReview.status.toLocaleUpperCase() === "PENDING" ? 
+        <DecisionModal reviewerID={user.id} approval={approvals[expenseToReview.expense_id]} onClose={handleExitReview} onSubmit={handleSubmitDecision}/> : 
+        <ReviewModal isManager={true} review={expenseToReview} onClose={handleExitReview}/>)}
       </main>
     </div>
   )
 }
+

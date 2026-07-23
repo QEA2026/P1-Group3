@@ -47,15 +47,16 @@ export default function EmployeeDashboard({
 
     const handleReview = (expense: Expense, approval: Approval) => {
         const review = {
-             user_id: expense.user_id,
-             expense_id: expense.id,
-             amount: expense.amount,
-             description: expense.description,
-             date: expense.date,
-             status: approval.status,
-             reviewer: approval.reviewer!,
-             comment: approval.comment!,
-             review_date: approval.review_date!
+                approval_id: approval.id,
+                user_id: expense.user_id,
+                expense_id: expense.id,
+                amount: expense.amount,
+                description: expense.description,
+                date: expense.date,
+                status: approval.status,
+                reviewer: approval.reviewer!,
+                comment: approval.comment!,
+                review_date: approval.review_date!
         }
 
         setExpenseToReview(review)

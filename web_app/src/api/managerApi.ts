@@ -4,7 +4,7 @@ import type {
   Approval,
 } from '../types/models'
 
-const BASE_URL = 'http://localhost:8080'
+const BASE_URL = 'http://localhost:9090'
 
 async function request<T>(
   endpoint: string,
@@ -30,7 +30,11 @@ async function request<T>(
     )
   }
 
-  if (response.status === 204) {
+  if (
+    response.status === 204 ||
+    response.status === 200 &&
+    !(await response.clone().text())
+  ) {
     return undefined as T
   }
 
@@ -86,23 +90,35 @@ export const managerApi = {
     )
   },
 
-  async getApprovalByExpenseId(
-    expenseId: number
-  ): Promise<Approval> {
-    return request<Approval>(
-      `/approvals/expense/${expenseId}`
-    )
-  },
+    async getApprovalByExpenseId(
+        expenseId: number
+        ): Promise<Approval | null> {
+        const approvals =
+            await request<Approval[]>('/approvals')
 
-  async updateApproval(
-    approvalId: number,
-    approval: Omit<Approval, 'id'>
-  ): Promise<Approval> {
-    return request<Approval>(
-      `/approvals/${approvalId}`,
+        return (
+            approvals.find(
+            (approval) =>
+                approval.expense_id === expenseId
+            ) ?? null
+        )
+    },
+
+  async updateApprovalStatus(
+    expenseId: number,
+    status: string,
+    reviewerId: number,
+    comment: string
+  ): Promise<void> {
+    return request<void>(
+      `/approvals/${expenseId}`,
       {
         method: 'PUT',
-        body: JSON.stringify(approval),
+        body: JSON.stringify({
+          status,
+          reviewer: reviewerId,
+          comment,
+        }),
       }
     )
   },
