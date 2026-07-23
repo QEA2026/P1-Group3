@@ -41,7 +41,7 @@ class TestUserEndpoints(unittest.TestCase):
 
         response = self.client.delete("/users/1")
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
         mock_remove.assert_called_once_with(1)
 
     @patch("app.users.get_from_id")
