@@ -115,12 +115,16 @@ public class UserDao {
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
             statement.setString(3, user.getRole());
-
-//            try (ResultSet generatedKeys = statement.executeQuery()) {
-//                if (generatedKeys.next()) {
-//                    return mapUser(generatedKeys);
-//                }
-//            }
+            statement.executeUpdate();
+            System.out.println("executed query");
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                System.out.println("got generatedKeys");
+                if (generatedKeys.next()) {
+                    int userId = generatedKeys.getInt(1);
+                    user.setId(userId);
+                    return user;
+                }
+            }
         }
 
         return user;

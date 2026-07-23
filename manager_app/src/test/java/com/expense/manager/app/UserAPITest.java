@@ -38,7 +38,7 @@ public class UserAPITest {
                         .when()
                         .delete("/" + user.getId())
                         .then()
-                        .statusCode(201);
+                        .statusCode(200);
             }
         }
     }
@@ -74,8 +74,8 @@ public class UserAPITest {
     void post_users_createSuccessValidResponse() {
         String requestBody = """
 				{
-				    "name": "Oscar",
-				    "password": "password",
+				    "username": "Oscar",
+				    "password": "test_password",
 				    "role": "Manager"
 				}
 				""";
@@ -86,10 +86,17 @@ public class UserAPITest {
                 .when()
                 .post()
                 .then()
-                .statusCode(201)
+                .statusCode(200)
                 .extract().as(User.class);
 
         dirtyUsers.add(newUser);
+
+        assertNotNull(newUser);
+        assertAll(
+                () -> assertEquals("Oscar", newUser.getUsername()),
+                () -> assertEquals("test_password", newUser.getPassword()),
+                () -> assertEquals("Manager", newUser.getRole())
+        );
     }
 
 }
