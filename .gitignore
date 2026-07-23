@@ -20,3 +20,4 @@ manager_app/target/
 allure-results/
 allure-report/
 combined-allure-results/
+employee_app/.coverage

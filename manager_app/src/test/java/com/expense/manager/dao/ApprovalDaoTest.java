@@ -143,4 +143,76 @@ public class ApprovalDaoTest {
 
         assertEquals("Database connection failed", exception.getMessage());
     }
+
+
+    @Test
+    @DisplayName("Add Comment To Reviewed Expense - Reviewed Expense Returns True")
+    void addComment_reviewedExpense_returnsTrue() throws SQLException {
+
+        when(database.getConnection())
+                .thenReturn(connection);
+
+        when(connection.prepareStatement(anyString()))
+                .thenReturn(ps);
+
+        when(ps.executeUpdate())
+                .thenReturn(1);
+
+
+        boolean result = approvalDao.addCommentToReviewedExpense(
+                10,
+                "Adding a note after review."
+        );
+
+
+        assertTrue(result);
+
+        verify(ps).setString(1, "Adding a note after review.");
+        verify(ps).setInt(2, 10);
+    }
+
+
+    @Test
+    @DisplayName("Add Comment To Reviewed Expense - Pending Or Missing Returns False")
+    void addComment_pendingOrMissing_returnsFalse() throws SQLException {
+
+        when(database.getConnection())
+                .thenReturn(connection);
+
+        when(connection.prepareStatement(anyString()))
+                .thenReturn(ps);
+
+        when(ps.executeUpdate())
+                .thenReturn(0);
+
+
+        boolean result = approvalDao.addCommentToReviewedExpense(
+                999,
+                "No matching reviewed expense."
+        );
+
+
+        assertFalse(result);
+    }
+
+
+    @Test
+    @DisplayName("Add Comment To Reviewed Expense - Database Connection Throws SQLException")
+    void addComment_connectionFailure_throwsSQLException() throws SQLException {
+
+        when(database.getConnection())
+                .thenThrow(new SQLException("Database connection failed"));
+
+
+        SQLException exception = assertThrows(
+                SQLException.class,
+                () -> approvalDao.addCommentToReviewedExpense(
+                        10,
+                        "Adding a note after review."
+                )
+        );
+
+
+        assertEquals("Database connection failed", exception.getMessage());
+    }
 }
