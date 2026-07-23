@@ -1,0 +1,6 @@
+[run]
+omit =
+    venv/*
+    tests/*
+    db/seed.py
+    employee_terminal.py
