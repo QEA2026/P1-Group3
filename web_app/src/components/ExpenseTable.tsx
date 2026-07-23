@@ -11,12 +11,14 @@ interface ExpenseTableProps {
     user: User
     onChanged: () => void
     onEdit: (expense: Expense) => void
+    onReview: (expense: Expense, approval: Approval) => void
 }
 
 export default function ExpenseTable({
     expenses,
     onChanged,
     onEdit,
+    onReview,
 }: ExpenseTableProps) {
     const [approvals, setApprovals] =
         useState<Record<number, Approval>>({})
@@ -218,7 +220,7 @@ export default function ExpenseTable({
                                                             expense
                                                         )
                                                     }
-                                                    className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                                                    className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-40"
                                                 >
                                                     Edit
                                                 </button>
@@ -236,9 +238,12 @@ export default function ExpenseTable({
                                                 </button>
                                             </div>
                                         ) : (
-                                            <span className="text-xs text-slate-400">
-                                                No actions available
-                                            </span>
+                                        <button
+                                            onClick={()=>onReview(expense, approvals[expense.id])}
+                                            className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                                        >
+                                            Review
+                                        </button>
                                         )}
                                     </td>
                                 </tr>
