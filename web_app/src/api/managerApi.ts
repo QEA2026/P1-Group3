@@ -1,125 +1,111 @@
+import axios from 'axios';
+
 import type {
   User,
   Expense,
   Approval,
-} from '../types/models'
+} from '../types/models';
 
-const BASE_URL = 'http://localhost:9090'
-
-async function request<T>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<T> {
-  const response = await fetch(
-    `${BASE_URL}${endpoint}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      ...options,
-    }
-  )
-
-  if (!response.ok) {
-    const errorText =
-      await response.text()
-
-    throw new Error(
-      `HTTP ${response.status}: ${errorText}`
-    )
-  }
-
-  if (
-    response.status === 204 ||
-    response.status === 200 &&
-    !(await response.clone().text())
-  ) {
-    return undefined as T
-  }
-
-  return response.json()
-}
+const BASE_URL = 'http://localhost:9090';
 
 export const managerApi = {
   // ====================
   // Authentication
   // ====================
 
-  async login(
+  login: async (
     username: string,
     password: string
-  ): Promise<User> {
-    return request<User>(
-      '/users/login',
+  ): Promise<User> => {
+    const { data } = await axios.post<User>(
+      `${BASE_URL}/users/login`,
       {
-        method: 'POST',
-        body: JSON.stringify({
-          username,
-          password,
-        }),
+        username,
+        password,
       }
-    )
+    );
+
+    return data;
+  },
+
+  register: async (
+    username: string,
+    password: string
+  ): Promise<User> => {
+    const { data } = await axios.post<User>(
+      `${BASE_URL}/users`,
+      {
+        username,
+        password,
+        role: "Manager"
+      }
+    );
+
+    return data;
   },
 
   // ====================
   // Expenses
   // ====================
 
-  async findAllExpenses(): Promise<Expense[]> {
-    return request<Expense[]>(
-      '/expenses'
-    )
+  findAllExpenses: async (): Promise<Expense[]> => {
+    const { data } = await axios.get<Expense[]>(
+      `${BASE_URL}/expenses`
+    );
+
+    return data;
   },
 
-  async findExpenseById(
+  findExpenseById: async (
     expenseId: number
-  ): Promise<Expense> {
-    return request<Expense>(
-      `/expenses/${expenseId}`
-    )
+  ): Promise<Expense> => {
+    const { data } = await axios.get<Expense>(
+      `${BASE_URL}/expenses/${expenseId}`
+    );
+
+    return data;
   },
 
   // ====================
   // Approvals
   // ====================
 
-  async findAllApprovals(): Promise<Approval[]> {
-    return request<Approval[]>(
-      '/approvals'
-    )
+  findAllApprovals: async (): Promise<Approval[]> => {
+    const { data } = await axios.get<Approval[]>(
+      `${BASE_URL}/approvals`
+    );
+
+    return data;
   },
 
-    async getApprovalByExpenseId(
-        expenseId: number
-        ): Promise<Approval | null> {
-        const approvals =
-            await request<Approval[]>('/approvals')
+  getApprovalByExpenseId: async (
+    expenseId: number
+  ): Promise<Approval | null> => {
+    const { data } = await axios.get<Approval[]>(
+      `${BASE_URL}/approvals`
+    );
 
-        return (
-            approvals.find(
-            (approval) =>
-                approval.expense_id === expenseId
-            ) ?? null
-        )
-    },
+    return (
+      data.find(
+        (approval) =>
+          approval.expense_id === expenseId
+      ) ?? null
+    );
+  },
 
-  async updateApprovalStatus(
+  updateApprovalStatus: async (
     expenseId: number,
     status: string,
     reviewerId: number,
     comment: string
-  ): Promise<void> {
-    return request<void>(
-      `/approvals/${expenseId}`,
+  ): Promise<void> => {
+    await axios.put(
+      `${BASE_URL}/approvals/${expenseId}`,
       {
-        method: 'PUT',
-        body: JSON.stringify({
-          status,
-          reviewer: reviewerId,
-          comment,
-        }),
+        status,
+        reviewer: reviewerId,
+        comment,
       }
-    )
+    );
   },
-}
+};

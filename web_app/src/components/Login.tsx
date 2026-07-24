@@ -1,21 +1,34 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { employeeApi } from '../api/employeeApi'
 import type { User } from '../types/models'
 import type { SubmitEvent } from 'react'
 import { ViewIcon, ViewOffIcon } from './Icons'
+import { useNavigate } from 'react-router-dom'
 
-interface LoginProps {
-  onLogin: (user: User) => void
-}
-
-export default function Login({
-  onLogin,
-}: LoginProps) {
+export default function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [isPassHidden, setIsPassHidden] = useState(true)
+
+  const navigate = useNavigate()
+  
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user')
+
+    if (!savedUser) {
+      return
+    }
+
+    const user: User = JSON.parse(savedUser)
+
+    if (user.role === 'Manager') {
+      navigate('/manager', { replace: true })
+    } else {
+      navigate('/employee', { replace: true })
+    }
+  }, [navigate])
 
   async function handleSubmit(
     event: SubmitEvent<HTMLElement>
@@ -31,13 +44,23 @@ export default function Login({
         password
       )
 
-      onLogin(user)
+      handleLogin(user)
     } catch {
       setError(
         'Username or password not valid.'
       )
     } finally {
       setLoading(false)
+    }
+  }
+
+  function handleLogin(user: User) {
+    localStorage.setItem('user', JSON.stringify(user))
+
+    if (user.role === 'Manager') {
+      navigate('/manager')
+    } else {
+      navigate('/employee')
     }
   }
 
@@ -130,6 +153,7 @@ export default function Login({
             >
               {loading ? 'Logging in...' : 'Login'}
             </button>
+            <div className="text-slate-400 w-full flex justify-center"><a onClick={()=>navigate("/register")} className="hover:text-blue-400 hover:cursor-default">Or register</a></div>
           </div>
         </form>
       </div>
