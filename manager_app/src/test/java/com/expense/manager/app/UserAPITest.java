@@ -13,6 +13,7 @@ import org.junit.jupiter.api.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
@@ -23,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /*
 Note: Because of the unique username constraint, this code assumes that some usernames don't exist.
 Run this code with the base database from seed.py.
+I chose silly names for the tests, so existing users shouldn't be a problem unless you have a user called
+"John Employee" or "John Manager".
  */
 public class UserAPITest {
 
@@ -116,7 +119,7 @@ public class UserAPITest {
         // create a new user
         String requestBody = """
                 {
-                    "username": "John Delete",
+                    "username": "John Manager",
                     "password": "admin456",
                     "role": "Manager"
                 }
@@ -154,7 +157,7 @@ public class UserAPITest {
     void post_users_createSuccessValidResponse() {
         String requestBody = """
 				{
-				    "username": "Oscar Test",
+				    "username": "John Manager",
 				    "password": "test_password",
 				    "role": "Manager"
 				}
@@ -173,7 +176,7 @@ public class UserAPITest {
 
         assertNotNull(newUser, "New user not added");
         assertAll(
-                () -> assertEquals("Oscar Test", newUser.getUsername(), "Created user with incorrect username"),
+                () -> assertEquals("John Manager", newUser.getUsername(), "Created user with incorrect username"),
                 () -> assertEquals("test_password", newUser.getPassword(), "Created user with incorrect password"),
                 () -> assertEquals("Manager", newUser.getRole(), "Created user with incorrect role")
         );
@@ -204,7 +207,7 @@ public class UserAPITest {
     void get_usersUsername_retrieveCorrectUser() {
         String requestBody = """
                 {
-                    "username": "Jane Employee",
+                    "username": "John Employee",
                     "password": "password",
                     "role": "Employee"
                 }
@@ -233,6 +236,220 @@ public class UserAPITest {
         );
     }
 
+    @Test
+    @DisplayName("GET /users/username/{username} retrieves empty response with no matching username")
+    void get_usersUsername_noUserEmptyResponse() {
+        String requestBody = """
+                {
+                    "username": "John Manager",
+                    "password": "password",
+                    "role": "Manager"
+                }
+                """;
+        User tbdUser = given()
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .when()
+                .post()
+                .then()
+                .statusCode(200)
+                .extract().as(User.class);
+
+        given()
+                .when()
+                .delete("/" + tbdUser.getId())
+                .then()
+                .statusCode(200);
+
+        String responseStr = given()
+                .when()
+                .get("/username/" + tbdUser.getUsername())
+                .then()
+                .extract().asString();
+
+        assertTrue(responseStr.isEmpty());
+    }
+
+    @Test
+    @DisplayName("POST /users/login validates login correctly")
+    void post_login_validateUser() {
+        String createUserRequestBody = """
+                {
+                    "username": "John Manager",
+                    "password": "password",
+                    "role": "Manager"
+                }
+                """;
+        User testUser = given()
+                .contentType(ContentType.JSON)
+                .body(createUserRequestBody)
+                .when()
+                .post()
+                .then()
+                .extract().as(User.class);
+        dirtyUsers.add(testUser);
+
+        String loginRequestBody = """
+                {
+                    "username": "John Manager",
+                    "password": "password"
+                }
+                """;
+        User result = given()
+                .contentType(ContentType.JSON)
+                .body(loginRequestBody)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(200)
+                .extract().as(User.class);
+        assertNotNull(result, "Login result should not be null");
+        assertAll(
+                () -> assertEquals(testUser.getId(), result.getId()),
+                () -> assertEquals(testUser.getUsername(), result.getUsername()),
+                () -> assertEquals(testUser.getRole(), result.getRole())
+        );
+    }
+
+    @Test
+    @DisplayName("POST /users/login will not validate employee login")
+    void post_login_employeeDontValidate() {
+        String createUserRequestBody = """
+                {
+                    "username": "John Employee",
+                    "password": "password",
+                    "role": "Employee"
+                }
+                """;
+        User employee = given()
+                .contentType(ContentType.JSON)
+                .body(createUserRequestBody)
+                .when()
+                .post()
+                .then()
+                .statusCode(200)
+                .extract().as(User.class);
+        dirtyUsers.add(employee);
+
+        String loginRequestBody = """
+                {
+                    "username": "John Employee",
+                    "password": "password"
+                }
+                """;
+        String response = given()
+                .contentType(ContentType.JSON)
+                .body(loginRequestBody)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(200)
+                .extract().asString();
+        assertTrue(response.isEmpty(), "Employee login attempt should not yield any validation");
+    }
+
+    @Test
+    @DisplayName("POST /users/login will not validate login with incorrect credentials")
+    void post_login_wrongCredentialsDontValidate() {
+        String createUserRequestBody = """
+                {
+                    "username": "John Manager",
+                    "password": "password",
+                    "role": "Manager"
+                }
+                """;
+        User employee = given()
+                .contentType(ContentType.JSON)
+                .body(createUserRequestBody)
+                .when()
+                .post()
+                .then()
+                .statusCode(200)
+                .extract().as(User.class);
+        dirtyUsers.add(employee);
+
+        String loginRequestBody = """
+                {
+                    "username": "John Manager",
+                    "password": "wrong password"
+                }
+                """;
+        String response = given()
+                .contentType(ContentType.JSON)
+                .body(loginRequestBody)
+                .when()
+                .post("/login")
+                .then()
+                .statusCode(200)
+                .extract().asString();
+        assertTrue(response.isEmpty(), "Login attempt with incorrect credentials should not yield any validation");
+    }
+
+    @Test
+    @DisplayName("DELETE /users/{id} correctly deletes a user")
+    void delete_usersId_deleteUser() {
+        String requestBody = """
+                {
+                    "username": "John Manager",
+                    "password": "password",
+                    "role": "Manager"
+                }
+                """;
+        User tbdUser = given()
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .when()
+                .post()
+                .then()
+                .statusCode(200)
+                .extract().as(User.class);
+
+        String message = given()
+                .when()
+                .delete("/" + tbdUser.getId())
+                .then()
+                .statusCode(200)
+                .extract()
+                .path("message");
+
+        assertEquals("User deleted successfully.", message);
+    }
+
+    @Test
+    @DisplayName("DELETE /users/{id} will get an error if user doesn't exist")
+    void delete_usersId_userDoesntExistFails() {
+        String requestBody = """
+                {
+                    "username": "John Manager",
+                    "password": "password",
+                    "role": "Manager"
+                }
+                """;
+        User tbdUser = given()
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .when()
+                .post()
+                .then()
+                .statusCode(200)
+                .extract().as(User.class);
+
+        // delete the user...
+        String message = given()
+                .when()
+                .delete("/" + tbdUser.getId())
+                .then()
+                .statusCode(200)
+                .extract()
+                .path("message");
+
+        // and then attempt to delete them again.
+        given()
+                .when()
+                .delete("/" + tbdUser.getId())
+                .then()
+                .statusCode(500);
+    }
 
 
 }
