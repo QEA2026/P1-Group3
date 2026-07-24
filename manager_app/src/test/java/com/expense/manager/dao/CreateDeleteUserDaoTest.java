@@ -8,9 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import static org.mockito.ArgumentMatchers.anyInt;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,8 +27,12 @@ class CreateDeleteUserDaoTest {
     Connection connection;
     @Mock
     PreparedStatement ps;
+    @Mock
+    ResultSet generatedKeys;
     @InjectMocks
     UserDao userDao;
+
+
 
     @Test
     @DisplayName("Create User - Success")
@@ -35,7 +40,10 @@ class CreateDeleteUserDaoTest {
         User user = new User(1, "username", "password", "Employee");
 
         when(db.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(ps);
+        when(connection.prepareStatement(anyString(), anyInt())).thenReturn(ps);
+        when(ps.getGeneratedKeys()).thenReturn(generatedKeys);
+        when(generatedKeys.next()).thenReturn(true);
+        when(generatedKeys.getInt(1)).thenReturn(1);
 
         User result = userDao.create(user);
 
