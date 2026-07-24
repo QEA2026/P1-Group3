@@ -23,3 +23,5 @@ combined-allure-results/
 
 # DS Store
 *.DS_Store
+
+employee_app/.coverage

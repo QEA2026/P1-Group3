@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react'
 import { managerApi } from '../api/managerApi'
 import type {
+    Approval,
   Expense,
+  Review,
   User,
 } from '../types/models'
+import { ReviewModal } from './ReviewModal'
+import { DecisionModal } from './DecisionModal'
 
 interface ManagerDashboardProps {
   user: User
@@ -14,7 +18,7 @@ type StatusFilter =
   | 'ALL'
   | 'PENDING'
   | 'APPROVED'
-  | 'REJECTED'
+  | 'DENIED'
 
 export default function ManagerDashboard({
   user,
@@ -28,15 +32,105 @@ export default function ManagerDashboard({
 
   const [loading, setLoading] =
     useState(true)
+    
+    const [approvals, setApprovals] =
+            useState<Record<number, Approval>>({})
+
+    const [expenseToReview, setExpenseToReview] =
+            useState<Review | null> (null)
+
+    const [currentPage, setCurrentPage] = useState(1)
+
+    const expensesPerPage = 10
+
+    const totalPages = Math.ceil(
+    expenses.length / expensesPerPage
+    )
+
+    const startIndex =
+    (currentPage - 1) * expensesPerPage
+
+    const currentExpenses = expenses.slice(
+    startIndex,
+    startIndex + expensesPerPage
+    )
+
+    const handleExitReview = () => {
+        setExpenseToReview(null)
+    }
+
+    const handleSubmitDecision = async (expenseId: number, status: string, reviewId: number, comment: string) => {
+        if(expenseToReview){
+            managerApi.updateApprovalStatus(expenseId, status, reviewId, comment)
+        }
+        approvals[expenseId].status = status
+        handleExitReview()
+    }
+
+    const handleReview = (expense: Expense, approval: Approval) => {
+        const review = {
+                approval_id: approval.id,
+                user_id: expense.user_id,
+                expense_id: expense.id,
+                amount: expense.amount,
+                description: expense.description,
+                date: expense.date,
+                status: approval.status,
+                reviewer: approval.reviewer,
+                comment: approval.comment,
+                review_date: approval.review_date
+        }
+
+        setExpenseToReview(review)
+    }
+
+    async function loadApprovals(
+    initialExpenses: Expense[]
+    ): Promise<Record<number, Approval>> {
+    const approvalEntries = await Promise.all(
+        initialExpenses.map(async (expense) => {
+        try {
+            const approval =
+            await managerApi.getApprovalByExpenseId(
+                expense.id
+            )
+
+            if (!approval) {
+            return null
+            }
+
+            return [
+            expense.id,
+            approval,
+            ] as const
+        } catch {
+            return null
+        }
+        })
+    )
+
+    const approvalMap: Record<number, Approval> = {}
+
+    for (const entry of approvalEntries) {
+        if (entry) {
+        approvalMap[entry[0]] = entry[1]
+        }
+    }
+
+    setApprovals(approvalMap)
+
+    return approvalMap
+    }
 
   async function loadExpenses() {
     try {
       setLoading(true)
         
       const unfilteredData = await managerApi.findAllExpenses()
-      const data = filter === 'ALL' ? unfilteredData : unfilteredData.filter(e => true)
+      const approvals = await loadApprovals(unfilteredData)
 
-      setExpenses(data)
+      const data = filter === 'ALL' ? unfilteredData : unfilteredData.filter(e => approvals[e.id]?.status.toUpperCase() == filter)
+      setExpenses(data.sort((a, b)=>b.id - a.id))
     } catch (error) {
       console.error(error)
       setExpenses([])
@@ -45,9 +139,10 @@ export default function ManagerDashboard({
     }
   }
 
-  useEffect(() => {
-    loadExpenses()
-  }, [filter])
+    useEffect(() => {
+        setCurrentPage(1)
+        loadExpenses()
+    }, [filter])
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -77,10 +172,6 @@ export default function ManagerDashboard({
           <h2 className="text-3xl font-bold text-slate-900">
             Expense Review
           </h2>
-
-          <p className="mt-2 text-slate-500">
-            Review and manage employee expense reports.
-          </p>
         </div>
 
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -101,7 +192,7 @@ export default function ManagerDashboard({
               'ALL',
               'PENDING',
               'APPROVED',
-              'REJECTED',
+              'DENIED',
             ] as StatusFilter[]
           ).map((status) => (
             <button
@@ -151,6 +242,10 @@ export default function ManagerDashboard({
                     Date
                   </th>
 
+                    <th className="px-6 py-4">
+                        Status
+                    </th>
+
                   <th className="px-6 py-4">
                     Actions
                   </th>
@@ -158,43 +253,99 @@ export default function ManagerDashboard({
               </thead>
 
               <tbody>
-                {expenses.map((expense) => (
-                  <tr
-                    key={expense.id}
-                    className="border-b border-slate-100"
-                  >
-                    <td className="px-6 py-4">
-                      {expense.id}
-                    </td>
+                {currentExpenses.map((expense) => {
+                    const approval =
+                        approvals[expense.id]
 
-                    <td className="px-6 py-4">
-                      {expense.user_id}
-                    </td>
+                    return (
+                    <tr
+                        key={expense.id}
+                        className="border-b border-slate-100"
+                    >
+                        <td className="px-6 py-4">
+                        {expense.id}
+                        </td>
 
-                    <td className="px-6 py-4 font-semibold">
-                      ${expense.amount}
-                    </td>
+                        <td className="px-6 py-4">
+                        {expense.user_id}
+                        </td>
 
-                    <td className="px-6 py-4">
-                      {expense.description}
-                    </td>
+                        <td className="px-6 py-4 font-semibold">
+                        ${expense.amount}
+                        </td>
 
-                    <td className="px-6 py-4">
-                      {expense.date}
-                    </td>
+                        <td className="px-6 py-4">
+                        {expense.description}
+                        </td>
 
-                    <td className="px-6 py-4">
-                      <button className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700">
-                        Review
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                        <td className="px-6 py-4">
+                        {expense.date}
+                        </td>
+
+                        <td className="px-6 py-4">
+                            <span
+                                className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                    approval?.status ===
+                                    'approved'
+                                        ? 'bg-green-100 text-green-700'
+                                        : approval?.status ===
+                                            'denied'
+                                            ? 'bg-red-100 text-red-700'
+                                            : 'bg-yellow-100 text-yellow-700'
+                                }`}
+                            >
+                                {approval?.status
+                                    ?.toUpperCase() ??
+                                    'LOADING'}
+                            </span>
+                        </td>
+
+                        <td className="px-6 py-4">
+                        <button
+                            onClick={()=>handleReview(expense, approval)}
+                            className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                        >
+                            Review
+                        </button>
+                        </td>
+                    </tr>
+                )})}
               </tbody>
             </table>
           )}
+          <div className="flex items-center justify-between border-t border-slate-200 px-6 py-4">
+            <p className="text-sm text-slate-500">
+                Page {currentPage} of {totalPages}
+            </p>
+
+            <div className="flex gap-2">
+                <button
+                onClick={() =>
+                    setCurrentPage((page) => page - 1)
+                }
+                disabled={currentPage === 1}
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                Previous
+                </button>
+
+                <button
+                onClick={() =>
+                    setCurrentPage((page) => page + 1)
+                }
+                disabled={currentPage === totalPages}
+                className="rounded-lg border border-slate-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                Next
+                </button>
+            </div>
+            </div>
         </div>
+        {expenseToReview && (expenseToReview.status.toLocaleUpperCase() === "PENDING" ? 
+        <DecisionModal reviewerID={user.id} approval={approvals[expenseToReview.expense_id]} onClose={handleExitReview} onSubmit={handleSubmitDecision}/> : 
+        <ReviewModal isManager={true} review={expenseToReview} onClose={handleExitReview}/>)}
       </main>
     </div>
   )
 }
+

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { employeeApi } from '../api/employeeApi'
 import type { User } from '../types/models'
 import type { SubmitEvent } from 'react'
+import { ViewIcon, ViewOffIcon } from './Icons'
 
 interface LoginProps {
   onLogin: (user: User) => void
@@ -14,6 +15,7 @@ export default function Login({
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isPassHidden, setIsPassHidden] = useState(true)
 
   async function handleSubmit(
     event: SubmitEvent<HTMLElement>
@@ -61,10 +63,6 @@ export default function Login({
             <h2 className="text-xl font-semibold text-slate-900">
               Welcome back
             </h2>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Sign in to access your expenses
-            </p>
           </div>
 
           <div className="space-y-5">
@@ -86,7 +84,6 @@ export default function Login({
                   setUsername(event.target.value)
                 }
                 className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                required
               />
             </div>
 
@@ -98,18 +95,22 @@ export default function Login({
               >
                 Password
               </label>
-
-              <input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(event) =>
-                  setPassword(event.target.value)
-                }
-                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                required
-              />
+                
+              <div className="relative">
+                <input
+                    id="password"
+                    type={isPassHidden ? "password" : "text"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(event) =>
+                    setPassword(event.target.value)
+                    }
+                    className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                />
+                <button className="absolute right-3 top-1/2 -translate-y-1/2 hover:cursor-pointer" type="button" onClick={()=>setIsPassHidden(!isPassHidden)}>
+                    {isPassHidden ? <ViewOffIcon /> : <ViewIcon />}
+                </button>
+              </div>
             </div>
 
             {/* Error */}

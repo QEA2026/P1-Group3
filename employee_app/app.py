@@ -150,7 +150,7 @@ def handle_delete_expense(expense_id):
 def handle_delete_approval(approval_id):
     existing = approvals.get_from_id(approval_id)
     if existing is None:
-        return jsonify({"error": f"Approval with ID {approval_id} not found"}, 404)
+        return jsonify({"error": f"Approval with ID {approval_id} not found"}), 404
     approvals.remove(approval_id)
     return jsonify({"message": f"Approval {approval_id} successfully deleted"}, 201)
 

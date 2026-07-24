@@ -4,3 +4,4 @@ omit =
     tests/*
     db/seed.py
     employee_terminal.py
+    db/db.py

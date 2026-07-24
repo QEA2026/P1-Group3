@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react'
 import { employeeApi } from '../api/employeeApi'
 import type {
+    Approval,
   Expense,
+  Review,
   User,
 } from '../types/models'
 import ExpenseTable from './ExpenseTable'
 import SubmitExpense from './SubmitExpense'
+import EditExpense from './EditExpense'
+import { ReviewModal } from './ReviewModal'
 
 interface EmployeeDashboardProps {
   user: User
@@ -29,8 +33,42 @@ export default function EmployeeDashboard({
   const [showSubmit, setShowSubmit] =
     useState(false)
 
+    const [expenseToEdit, setExpenseToEdit] =
+            useState<Expense | null> (null)
+
+    const [expenseToReview, setExpenseToReview] =
+        useState<Review | null> (null)
+
   const ITEMS_PER_PAGE = 5
 
+    const handleEdit = (expense: Expense) => {
+        setExpenseToEdit(expense)
+    }
+
+    const handleReview = (expense: Expense, approval: Approval) => {
+        const review = {
+                approval_id: approval.id,
+                user_id: expense.user_id,
+                expense_id: expense.id,
+                amount: expense.amount,
+                description: expense.description,
+                date: expense.date,
+                status: approval.status,
+                reviewer: approval.reviewer!,
+                comment: approval.comment!,
+                review_date: approval.review_date!
+        }
+
+        setExpenseToReview(review)
+    }
+
+    const onUpdated = (expense: Expense) => {
+        setExpenses(expenses.map((e: Expense) => 
+            e.id == expense.id ?
+            expense : e
+        ))
+        setExpenseToEdit(null)
+    }
   async function loadExpenses() {
     try {
       const data =
@@ -42,7 +80,7 @@ export default function EmployeeDashboard({
               user.id
             )
 
-      setExpenses(data)
+      setExpenses(data.sort((a, b) => b.id - a.id))
     } catch (error) {
       console.error(error)
       setExpenses([])
@@ -72,6 +110,10 @@ export default function EmployeeDashboard({
   function handleExpenseCreated() {
     setShowSubmit(false)
     loadExpenses()
+  }
+
+  const handleExitReview = () => {
+    setExpenseToReview(null)
   }
 
   return (
@@ -106,6 +148,15 @@ export default function EmployeeDashboard({
               setShowSubmit(false)
             }
           />
+        ) : expenseToEdit ? (
+        <EditExpense
+            user={user}
+            onUpdated={onUpdated}
+            onCancel={() =>
+                setExpenseToEdit(null)
+            }
+            expense={expenseToEdit}
+        />
         ) : (
           <>
             <div className="mb-8">
@@ -171,6 +222,8 @@ export default function EmployeeDashboard({
               expenses={visibleExpenses}
               user={user}
               onChanged={loadExpenses}
+              onEdit={handleEdit}
+              onReview={handleReview}
             />
 
             <div className="mt-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
@@ -201,6 +254,7 @@ export default function EmployeeDashboard({
           </>
         )}
       </main>
+      {expenseToReview && <ReviewModal isManager={false} review={expenseToReview} onClose={handleExitReview}/>}
     </div>
   )
 }
