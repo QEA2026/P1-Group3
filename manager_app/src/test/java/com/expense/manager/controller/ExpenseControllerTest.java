@@ -133,4 +133,81 @@ public class ExpenseControllerTest {
 
         verify(dao).findByDate("2026-07-22");
     }
+
+    @Test
+    @DisplayName("findById returns expense with matching ID")
+    void findById_returnsExpense() throws SQLException {
+        Expense expectedExpense = new Expense(
+                1,
+                4,
+                100.00F,
+                "expense 1 description",
+                "2026-07-20"
+        );
+
+        when(dao.findById(1)).thenReturn(expectedExpense);
+
+        Expense actualExpense = expenseController.findById(1);
+
+        assertNotNull(actualExpense);
+
+        assertAll(
+                () -> assertEquals(expectedExpense.getId(), actualExpense.getId()),
+                () -> assertEquals(expectedExpense.getUser_id(), actualExpense.getUser_id()),
+                () -> assertEquals(expectedExpense.getAmount(), actualExpense.getAmount()),
+                () -> assertEquals(expectedExpense.getDescription(), actualExpense.getDescription()),
+                () -> assertEquals(expectedExpense.getDate(), actualExpense.getDate())
+        );
+
+        verify(dao).findById(1);
+    }
+
+
+    @Test
+    @DisplayName("findByStatus returns expenses with matching status")
+    void findByStatus_returnsMatchingExpenses() throws SQLException {
+        Expense expectedExpense1 = new Expense(
+                1,
+                4,
+                100.00F,
+                "expense 1 description",
+                "2026-07-20"
+        );
+
+        Expense expectedExpense2 = new Expense(
+                2,
+                5,
+                200.00F,
+                "expense 2 description",
+                "2026-07-21"
+        );
+
+        List<Expense> expectedExpenses = List.of(
+                expectedExpense1,
+                expectedExpense2
+        );
+
+        when(dao.findByStatus("pending")).thenReturn(expectedExpenses);
+
+        List<Expense> actualExpenses =
+                expenseController.findByStatus("pending");
+
+        assertNotNull(actualExpenses);
+        assertEquals(expectedExpenses.size(), actualExpenses.size());
+
+        for (int i = 0; i < actualExpenses.size(); i++) {
+                Expense expected = expectedExpenses.get(i);
+                Expense actual = actualExpenses.get(i);
+
+                assertAll(
+                        () -> assertEquals(expected.getId(), actual.getId()),
+                        () -> assertEquals(expected.getUser_id(), actual.getUser_id()),
+                        () -> assertEquals(expected.getAmount(), actual.getAmount()),
+                        () -> assertEquals(expected.getDescription(), actual.getDescription()),
+                        () -> assertEquals(expected.getDate(), actual.getDate())
+                );
+        }
+
+        verify(dao).findByStatus("pending");
+    }
 }
