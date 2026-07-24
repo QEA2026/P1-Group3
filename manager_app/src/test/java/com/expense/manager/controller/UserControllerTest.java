@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -144,7 +145,73 @@ public class UserControllerTest {
                 request.get("password")
         );
     }
+    @Test
+    @DisplayName("Get All Users")
+    void getUsers_returnsUsers() throws SQLException {
+
+        List<User> users = List.of(
+                new User(1, "Manager123", "pass123", "Manager"),
+                new User(2, "Employee123", "pass123", "Employee")
+        );
+
+        when(dao.findAll()).thenReturn(users);
+
+        List<User> result = userController.getUsers();
+
+        assertEquals(2, result.size());
+        assertEquals(users, result);
+
+        verify(dao).findAll();
+    }
+
+    @Test
+    @DisplayName("Find User By ID")
+    void findById_returnsUser() throws SQLException {
+
+        User user = new User(
+                1,
+                "Manager123",
+                "pass123",
+                "Manager"
+        );
+
+        when(dao.findById(1))
+                .thenReturn(user);
 
 
+        User result = userController.findById(1);
+
+
+        assertNotNull(result);
+        assertEquals(user, result);
+
+        verify(dao).findById(1);
+    }
+
+    @Test
+    @DisplayName("Find User By Username")
+    void findByUsername_returnsUser() throws SQLException {
+
+        User user = new User(
+                1,
+                "Manager123",
+                "pass123",
+                "Manager"
+        );
+
+
+        when(dao.findByUsername("Manager123"))
+                .thenReturn(user);
+
+
+        User result =
+                userController.findByUsername("Manager123");
+
+
+        assertEquals(user, result);
+
+        verify(dao)
+                .findByUsername("Manager123");
+    }
 
 }
