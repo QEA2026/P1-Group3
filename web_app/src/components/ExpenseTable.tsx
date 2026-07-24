@@ -199,7 +199,7 @@ export default function ExpenseTable({
                                                 'approved'
                                                     ? 'bg-green-100 text-green-700'
                                                     : approval?.status ===
-                                                        'rejected'
+                                                        'denied'
                                                         ? 'bg-red-100 text-red-700'
                                                         : 'bg-yellow-100 text-yellow-700'
                                             }`}

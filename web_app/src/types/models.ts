@@ -23,13 +23,14 @@ export interface Approval {
 }
 
 export interface Review {
+  approval_id?: number
   user_id: number
   expense_id: number
   amount: number
   description: string
   date: string
   status: string
-  reviewer: number
-  comment: string
-  review_date: string
+  reviewer?: number | null
+  comment?: string
+  review_date?: string
 }
