@@ -24,9 +24,14 @@ class TestEdit:
         assert edited_expense.date == "new date"
         assert edited_expense.id == 5
 
+    @patch("controllers.expenses.get_from_id")  
     @patch("controllers.expenses.get_connection")
-    def test_edit_invalidShouldRaiseDatabaseError(self, mock_get_connection):
-        mock_get_connection.side_effect = sqlite3.IntegrityError
+    def test_edit_invalidShouldRaiseDatabaseError(self, mock_get_connection, mock_get_from_id):
+        mock_get_from_id.return_value = Expense(1, 1, "desc", "date", 1)
+
+        conn = MagicMock()
+        mock_get_connection.return_value.__enter__.return_value = conn
+        conn.execute.side_effect = sqlite3.IntegrityError
 
         expense = Expense(1, 1, "description", "", 1)
 
@@ -35,9 +40,15 @@ class TestEdit:
 
         assert str(e.value) == "Contraints violated"
 
+    @patch("controllers.expenses.get_from_id")
     @patch("controllers.expenses.get_connection")
-    def test_edit_failedConnectionShouldRaiseDatabaseError(self, mock_get_connection):
-        mock_get_connection.side_effect = sqlite3.DatabaseError
+    def test_edit_failedConnectionShouldRaiseDatabaseError(self, mock_get_connection, mock_get_from_id):
+        mock_get_from_id.return_value = Expense(1, 1, "description", "date", 1)
+
+        conn = MagicMock()
+        mock_get_connection.return_value.__enter__.return_value = conn
+
+        conn.execute.side_effect = sqlite3.DatabaseError
 
         expense = Expense(1, 1, "description", "date", 1)
 
