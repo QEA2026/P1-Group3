@@ -4,17 +4,13 @@ import type {
     Approval,
   Expense,
   Review,
-  User,
 } from '../types/models'
 import { ReviewModal } from './ReviewModal'
 import { DecisionModal } from './DecisionModal'
 import { downloadCsv } from '../utils/downloadCSV'
 import { DateFilter } from './DateFilter'
-
-interface ManagerDashboardProps {
-  user: User
-  onLogout: () => void
-}
+import { LogoutButton } from './LogoutButton'
+import { useNavigate } from 'react-router-dom'
 
 type StatusFilter =
   | 'ALL'
@@ -22,12 +18,20 @@ type StatusFilter =
   | 'APPROVED'
   | 'DENIED'
 
-export default function ManagerDashboard({
-  user,
-  onLogout,
-}: ManagerDashboardProps) {
-    const [expenses, setExpenses] =
-        useState<Expense[]>([])
+export default function ManagerDashboard() {
+    const savedUser = localStorage.getItem('user')
+
+    const user = savedUser
+    ? JSON.parse(savedUser)
+    : null
+
+    const navigate = useNavigate()
+
+    useEffect(()=>{
+        if(user.role != "Manager"){
+            navigate('/employee', { replace: true })
+        }
+    }, [])
 
     const [filteredExpenses, setFilteredExpenses] = 
         useState<Expense[]>([])
@@ -172,14 +176,12 @@ export default function ManagerDashboard({
       setLoading(true)
         
       const unfilteredData = await managerApi.findAllExpenses()
-      setExpenses(unfilteredData)
 
       const approvals = await loadApprovals(unfilteredData)
       const data = unfilteredData.filter((e: Expense)=>filterData(e, approvals[e.id]))
       setFilteredExpenses(data.sort((a, b)=>b.id - a.id))
     } catch (error) {
       console.error(error)
-      setExpenses([])
       setFilteredExpenses([])
     } finally {
       setLoading(false)
@@ -205,12 +207,7 @@ export default function ManagerDashboard({
             </p>
           </div>
 
-          <button
-            onClick={onLogout}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            Logout
-          </button>
+          <LogoutButton />
         </div>
       </header>
 

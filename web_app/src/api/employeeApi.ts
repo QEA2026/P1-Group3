@@ -1,148 +1,115 @@
+import axios from 'axios';
+
 import type {
   User,
   Expense,
   Approval,
-} from '../types/models'
+} from '../types/models';
 
-const BASE_URL = 'http://localhost:8080'
-
-async function request<T>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<T> {
-  const response = await fetch(
-    `${BASE_URL}${endpoint}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      ...options,
-    }
-  )
-
-  if (!response.ok) {
-    const errorText =
-      await response.text()
-
-    throw new Error(
-      `HTTP ${response.status}: ${errorText}`
-    )
-  }
-
-  if (response.status === 204) {
-    return undefined as T
-  }
-
-  return response.json()
-}
+const BASE_URL = 'http://localhost:8080';
 
 export const employeeApi = {
-  // -------------------------
-  // Authentication
-  // -------------------------
+  register: async (
+    username: string,
+    password: string,
+  ): Promise<User> => {
+    const { data } = await axios.post<User>(
+      `${BASE_URL}/users`,
+      { username, password, role: "Employee" }
+    );
 
-  async login(
+    return data;
+  },
+
+  login: async (
     username: string,
     password: string
-  ): Promise<User> {
-    return request<User>(
-      '/users/login',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          username,
-          password,
-        }),
-      }
-    )
+  ): Promise<User> => {
+    const { data } = await axios.post<User>(
+      `${BASE_URL}/users/login`,
+      { username, password }
+    );
+
+    return data;
   },
 
-  // -------------------------
-  // Expenses
-  // -------------------------
-
-  async getExpenseById(
+  getExpenseById: async (
     expenseId: number
-  ): Promise<Expense> {
-    return request<Expense>(
-      `/expenses/${expenseId}`
-    )
+  ): Promise<Expense> => {
+    const { data } = await axios.get<Expense>(
+      `${BASE_URL}/expenses/${expenseId}`
+    );
+
+    return data;
   },
 
-  async getMyExpenses(
+  getMyExpenses: async (
     userId: number
-  ): Promise<Expense[]> {
-    return request<Expense[]>(
-      `/expenses/user/${userId}`
-    )
+  ): Promise<Expense[]> => {
+    const { data } = await axios.get<Expense[]>(
+      `${BASE_URL}/expenses/user/${userId}`
+    );
+
+    return data;
   },
 
-  async getMyExpenseHistory(
+  getMyExpenseHistory: async (
     userId: number
-  ): Promise<Expense[]> {
-    return request<Expense[]>(
-      `/expenses/user/${userId}/history`
-    )
+  ): Promise<Expense[]> => {
+    const { data } = await axios.get<Expense[]>(
+      `${BASE_URL}/expenses/user/${userId}/history`
+    );
+
+    return data;
   },
 
-  async createExpense(
+  createExpense: async (
     expense: Omit<Expense, 'id'>
-  ): Promise<Expense> {
-    return request<Expense>(
-      '/expenses',
-      {
-        method: 'POST',
-        body: JSON.stringify(expense),
-      }
-    )
+  ): Promise<Expense> => {
+    const { data } = await axios.post<Expense>(
+      `${BASE_URL}/expenses`,
+      expense
+    );
+
+    return data;
   },
 
-  async updateExpense(
+  updateExpense: async (
     expenseId: number,
     expense: Omit<Expense, 'id'>
-  ): Promise<void> {
-    await request<void>(
-      `/expenses/${expenseId}`,
-      {
-        method: 'PUT',
-        body: JSON.stringify(expense),
-      }
-    )
+  ): Promise<void> => {
+    await axios.put(
+      `${BASE_URL}/expenses/${expenseId}`,
+      expense
+    );
   },
 
-  async deleteExpense(
+  deleteExpense: async (
     expenseId: number
-  ): Promise<void> {
-    await request<void>(
-      `/expenses/${expenseId}`,
-      {
-        method: 'DELETE',
-      }
-    )
+  ): Promise<void> => {
+    await axios.delete(
+      `${BASE_URL}/expenses/${expenseId}`
+    );
   },
 
-  // -------------------------
-  // Approvals
-  // -------------------------
-
-  async getApprovalByExpenseId(
+  getApprovalByExpenseId: async (
     expenseId: number
-  ): Promise<Approval> {
-    return request<Approval>(
-      `/approvals/expense/${expenseId}`
-    )
+  ): Promise<Approval> => {
+    const { data } = await axios.get<Approval>(
+      `${BASE_URL}/approvals/expense/${expenseId}`
+    );
+
+    return data;
   },
 
-  async createApproval(
+  createApproval: async (
     approval: Omit<Approval, 'id'>
-  ): Promise<Approval> {
-    return request<Approval>(
-      '/approvals',
-      {
-        method: 'POST',
-        body: JSON.stringify(approval),
-      }
-    )
+  ): Promise<Approval> => {
+    const { data } = await axios.post<Approval>(
+      `${BASE_URL}/approvals`,
+      approval
+    );
+
+    return data;
   },
-}
+};
