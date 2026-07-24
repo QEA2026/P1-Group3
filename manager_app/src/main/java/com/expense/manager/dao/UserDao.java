@@ -110,13 +110,21 @@ public class UserDao {
             """;
 
         try (Connection connection = database.getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)) {
+            PreparedStatement statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
             statement.setString(3, user.getRole());
-
             statement.executeUpdate();
+            System.out.println("executed query");
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                System.out.println("got generatedKeys");
+                if (generatedKeys.next()) {
+                    int userId = generatedKeys.getInt(1);
+                    user.setId(userId);
+                    return user;
+                }
+            }
         }
 
         return user;

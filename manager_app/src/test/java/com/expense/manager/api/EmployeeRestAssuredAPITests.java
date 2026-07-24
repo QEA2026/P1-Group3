@@ -1,34 +1,24 @@
-package com.expense.manager;
+package com.expense.manager.api;
 //REST assured Setup and First Tests
-
-/**
- * HOW TO RUN
- * 
- * Start with an EMPTY database - run db.py instead of seed.py in employee_app/db
- * Database is assumed empty and is cleared completely between and after tests.
- */
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
+
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+
 
 import com.expense.manager.models.Approval;
 import com.expense.manager.models.Expense;
 import com.expense.manager.models.User;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @DisplayName("API Tests")
-public class RestAssuredAPITests {
+public class EmployeeRestAssuredAPITests {
 	private static User TEST_EMPLOYEE;
 	private static User TEST_MANAGER;
 	private static List<Expense> dirtyExpenses;
@@ -61,7 +51,6 @@ public class RestAssuredAPITests {
 				.statusCode(201)
 				.extract()
 				.as(User.class);
-		System.out.println("Test employee ID: " + TEST_EMPLOYEE.getId());
 
 		TEST_MANAGER = given()
 				.contentType(ContentType.JSON)
@@ -72,7 +61,6 @@ public class RestAssuredAPITests {
 				.statusCode(201)
 				.extract()
 				.as(User.class);
-		System.out.println("Test manager ID: " + TEST_MANAGER.getId());
 	}
 
 	static void deleteUsers() {
@@ -81,7 +69,6 @@ public class RestAssuredAPITests {
 					.delete("/users/" + TEST_EMPLOYEE.getId())
 					.then()
 					.statusCode(201);
-			System.out.println("Deleted user " + TEST_EMPLOYEE.getId());
 			TEST_EMPLOYEE = null;
 		}
 		if (TEST_MANAGER != null) {
@@ -89,13 +76,12 @@ public class RestAssuredAPITests {
 					.delete("/users/" + TEST_MANAGER.getId())
 					.then()
 					.statusCode(201);
-			System.out.println("Deleted user " + TEST_MANAGER.getId());
 			TEST_MANAGER = null;
 		}
 	}
 
 	static void deleteExpenses() {
-		if (dirtyExpenses == null || dirtyExpenses.size() == 0) {
+		if (dirtyExpenses == null || dirtyExpenses.isEmpty()) {
 			return;
 		}
 		for (Expense expense : dirtyExpenses) {
@@ -106,7 +92,6 @@ public class RestAssuredAPITests {
 			System.out.println("Deleted expense " + expense.getId());
 		}
 		dirtyExpenses = new ArrayList<>();
-		System.out.println("dirtyExpenses cleared.");
 	}
 
 	/**
@@ -133,7 +118,6 @@ public class RestAssuredAPITests {
 				.statusCode(201)
 				.extract().as(Expense.class);
 		dirtyExpenses.add(retExpense);
-		System.out.println("Added test expense " + retExpense.getId());
 		return retExpense;
 
 	}
@@ -165,12 +149,11 @@ public class RestAssuredAPITests {
 				.then()
 				.extract().as(Approval.class);
 		dirtyApprovals.add(newApproval);
-		System.out.println("Added test approval " + newApproval.getId());
 		return newApproval;
 	}
 
 	static void deleteApprovals() {
-		if (dirtyApprovals == null || dirtyApprovals.size() == 0) {
+		if (dirtyApprovals == null || dirtyApprovals.isEmpty()) {
 			return;
 		}
 		for (Approval approval : dirtyApprovals) {
@@ -183,7 +166,7 @@ public class RestAssuredAPITests {
 	}
 
 	static void deleteDirtyUsers() {
-		if (dirtyUsers == null || dirtyUsers.size() == 0) {
+		if (dirtyUsers == null || dirtyUsers.isEmpty()) {
 			return;
 		}
 		for (User user : dirtyUsers) {
@@ -281,10 +264,9 @@ public class RestAssuredAPITests {
 				.statusCode(201)
 				.extract().as(Expense.class);
 		dirtyExpenses.add(newExpense);
-		assertNotNull(newExpense.getId());
+		assertNotNull(newExpense);
 		assertEquals("test expense", newExpense.getDescription());
 		assertEquals(TEST_EMPLOYEE.getId(), newExpense.getUser_id());
-		System.out.println("Added test expense " + newExpense.getId());
 	}
 
 	@Test
@@ -311,8 +293,6 @@ public class RestAssuredAPITests {
 				.statusCode(201)
 				.extract().as(Approval.class);
 		assertNotNull(newApproval);
-		assertNotNull(newApproval.getId());
-		System.out.println("Added test approval " + newApproval.getId());
 		dirtyApprovals.add(newApproval);
 	}
 
@@ -561,7 +541,7 @@ public class RestAssuredAPITests {
 				.then()
 				.statusCode(201)
 				.extract().as(User.class);
-		assertNotNull(newUser.getId());
+		assertNotNull(newUser);
 		assertEquals("temp test user", newUser.getUsername());
 		dirtyUsers.add(newUser);
 	}
