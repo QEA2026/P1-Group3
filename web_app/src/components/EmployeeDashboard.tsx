@@ -4,24 +4,23 @@ import type {
     Approval,
   Expense,
   Review,
-  User,
 } from '../types/models'
 import ExpenseTable from './ExpenseTable'
 import SubmitExpense from './SubmitExpense'
 import EditExpense from './EditExpense'
 import { ReviewModal } from './ReviewModal'
-
-interface EmployeeDashboardProps {
-  user: User
-  onLogout: () => void
-}
+import { LogoutButton } from './LogoutButton'
+import { useNavigate } from 'react-router-dom'
 
 type FilterMode = 'ALL' | 'HISTORY'
 
-export default function EmployeeDashboard({
-  user,
-  onLogout,
-}: EmployeeDashboardProps) {
+export default function EmployeeDashboard() {
+    const savedUser = localStorage.getItem('user')
+
+    const user = savedUser
+    ? JSON.parse(savedUser)
+    : null
+
   const [expenses, setExpenses] =
     useState<Expense[]>([])
 
@@ -39,6 +38,13 @@ export default function EmployeeDashboard({
     const [expenseToReview, setExpenseToReview] =
         useState<Review | null> (null)
 
+    const navigate = useNavigate()
+    
+    useEffect(()=>{
+        if(user.role != "Employee"){
+            navigate('/manager', { replace: true })
+        }
+    }, [])
   const ITEMS_PER_PAGE = 5
 
     const handleEdit = (expense: Expense) => {
@@ -130,12 +136,7 @@ export default function EmployeeDashboard({
             </p>
           </div>
 
-          <button
-            onClick={onLogout}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            Logout
-          </button>
+          <LogoutButton />
         </div>
       </header>
 

@@ -42,11 +42,11 @@ export const ReviewModal = ({
 
             <div>
               <p className="text-sm text-slate-500">
-                {isManager ? "Date" : "Review Date"}
+                Review Date
               </p>
 
               <p className="mt-1 font-semibold text-slate-900">
-                {isManager ? review.date : review.review_date}
+                {review.review_date}
               </p>
             </div>
           </div>

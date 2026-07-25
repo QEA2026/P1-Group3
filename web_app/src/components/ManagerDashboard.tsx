@@ -4,15 +4,13 @@ import type {
     Approval,
   Expense,
   Review,
-  User,
 } from '../types/models'
 import { ReviewModal } from './ReviewModal'
 import { DecisionModal } from './DecisionModal'
-
-interface ManagerDashboardProps {
-  user: User
-  onLogout: () => void
-}
+import { downloadCsv } from '../utils/downloadCSV'
+import { DateFilter } from './DateFilter'
+import { LogoutButton } from './LogoutButton'
+import { useNavigate } from 'react-router-dom'
 
 type StatusFilter =
   | 'ALL'
@@ -20,18 +18,33 @@ type StatusFilter =
   | 'APPROVED'
   | 'DENIED'
 
-export default function ManagerDashboard({
-  user,
-  onLogout,
-}: ManagerDashboardProps) {
-  const [expenses, setExpenses] =
-    useState<Expense[]>([])
+export default function ManagerDashboard() {
+    const savedUser = localStorage.getItem('user')
 
-  const [filter, setFilter] =
-    useState<StatusFilter>('ALL')
+    const user = savedUser
+    ? JSON.parse(savedUser)
+    : null
 
-  const [loading, setLoading] =
-    useState(true)
+    const navigate = useNavigate()
+
+    useEffect(()=>{
+        if(user.role != "Manager"){
+            navigate('/employee', { replace: true })
+        }
+    }, [])
+
+    const [filteredExpenses, setFilteredExpenses] = 
+        useState<Expense[]>([])
+
+    const [filter, setFilter] =
+        useState<StatusFilter>('ALL')
+
+    const [day, setDay] = useState("")
+    const [month, setMonth] = useState("")
+    const [year, setYear] = useState("")
+
+    const [loading, setLoading] =
+        useState(true)
     
     const [approvals, setApprovals] =
             useState<Record<number, Approval>>({})
@@ -44,19 +57,23 @@ export default function ManagerDashboard({
     const expensesPerPage = 10
 
     const totalPages = Math.ceil(
-    expenses.length / expensesPerPage
+    filteredExpenses.length / expensesPerPage
     )
 
     const startIndex =
     (currentPage - 1) * expensesPerPage
 
-    const currentExpenses = expenses.slice(
+    const currentExpenses = filteredExpenses.slice(
     startIndex,
     startIndex + expensesPerPage
     )
 
     const handleExitReview = () => {
         setExpenseToReview(null)
+    }
+
+    const handleDownload = () => {
+        downloadCsv(filteredExpenses, approvals)
     }
 
     const handleSubmitDecision = async (expenseId: number, status: string, reviewId: number, comment: string) => {
@@ -82,6 +99,13 @@ export default function ManagerDashboard({
         }
 
         setExpenseToReview(review)
+    }
+
+    const getTotalTitleByFilter = (filter: StatusFilter) => {
+        if(filter === "ALL"){
+            return "Active"
+        }
+        return filter[0] + filter.slice(1).toLowerCase()
     }
 
     async function loadApprovals(
@@ -122,18 +146,43 @@ export default function ManagerDashboard({
     return approvalMap
     }
 
+    const filterData = (expense: Expense, approval: Approval) => {
+        const matchesStatus =
+            filter === 'ALL' ||
+            approval.status.toUpperCase() === filter
+
+        const [expenseYear, expenseMonth, expenseDay] =
+            expense.date.split('-')
+
+        const matchesDay =
+            !month || !day || expenseDay === day.padStart(2, '0')
+
+        const matchesMonth =
+            !month || expenseMonth === month.padStart(2, '0')
+
+        const matchesYear =
+            !year || expenseYear === year
+
+        return (
+            matchesStatus &&
+            matchesDay &&
+            matchesMonth &&
+            matchesYear
+        )
+    }
+    
   async function loadExpenses() {
     try {
       setLoading(true)
         
       const unfilteredData = await managerApi.findAllExpenses()
-      const approvals = await loadApprovals(unfilteredData)
 
-      const data = filter === 'ALL' ? unfilteredData : unfilteredData.filter(e => approvals[e.id]?.status.toUpperCase() == filter)
-      setExpenses(data.sort((a, b)=>b.id - a.id))
+      const approvals = await loadApprovals(unfilteredData)
+      const data = unfilteredData.filter((e: Expense)=>filterData(e, approvals[e.id]))
+      setFilteredExpenses(data.sort((a, b)=>b.id - a.id))
     } catch (error) {
       console.error(error)
-      setExpenses([])
+      setFilteredExpenses([])
     } finally {
       setLoading(false)
     }
@@ -142,7 +191,7 @@ export default function ManagerDashboard({
     useEffect(() => {
         setCurrentPage(1)
         loadExpenses()
-    }, [filter])
+    }, [filter, day, month, year])
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -158,12 +207,7 @@ export default function ManagerDashboard({
             </p>
           </div>
 
-          <button
-            onClick={onLogout}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            Logout
-          </button>
+          <LogoutButton />
         </div>
       </header>
 
@@ -181,12 +225,12 @@ export default function ManagerDashboard({
             </p>
 
             <p className="mt-2 text-3xl font-bold">
-              {expenses.length}
+              {filteredExpenses.length}
             </p>
           </div>
         </div>
 
-        <div className="mb-6 flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="mb-6 flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm items-center">
           {(
             [
               'ALL',
@@ -207,6 +251,19 @@ export default function ManagerDashboard({
               {status}
             </button>
           ))}
+            <div className="h-10 border-l border-slate-600" />
+            <DateFilter day={day} month={month} year={year} setMonth={setMonth} setYear={setYear} setDay={setDay}/>
+          <div className="flex flex-row ml-auto items-center">
+                <div className="font-semibold text-xl mr-4">
+                    Total {getTotalTitleByFilter(filter)}: ${filteredExpenses.reduce((total: number, expense: Expense)=>{
+                        if(approvals[expense.id].status.toUpperCase() == "DENIED" && filter !== "DENIED"){
+                            return total
+                        }
+                        return total + expense.amount
+                    }, 0).toFixed(2)}
+                </div>
+                <button onClick={handleDownload} type="button" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" >Export</button>
+          </div>
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -214,7 +271,7 @@ export default function ManagerDashboard({
             <div className="p-8 text-center text-slate-500">
               Loading expenses...
             </div>
-          ) : expenses.length === 0 ? (
+          ) : filteredExpenses.length === 0 ? (
             <div className="p-8 text-center text-slate-500">
               No expenses found.
             </div>
