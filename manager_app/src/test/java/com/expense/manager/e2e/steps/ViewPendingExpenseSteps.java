@@ -1,6 +1,9 @@
 package com.expense.manager.e2e.steps;
+import com.expense.manager.e2e.context.TestContext;
 import com.expense.manager.e2e.hooks.Hooks;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.description;
 
 import org.openqa.selenium.WebDriver;
 
@@ -21,7 +24,11 @@ public class ViewPendingExpenseSteps {
     private EmployeeDashboardPage employeeDashboardPage;
     private SubmitExpensePage submitExpensePage;
     private ManagerDashboardPage managerDashboardPage;
-    private String expenseDescription;
+    private TestContext context;
+
+    public ViewPendingExpenseSteps(TestContext context) {
+        this.context = context;
+    }
 
     @Before
     public void setUpPages() {
@@ -42,7 +49,9 @@ public class ViewPendingExpenseSteps {
     public void the_employee_submits_a_new_expense() {
         employeeDashboardPage.clickSubmitNewExpense();
 
-        expenseDescription = "E2E_" + System.currentTimeMillis();
+        String expenseDescription = "E2E_" + System.currentTimeMillis();
+
+        context.setExpenseDescription(expenseDescription);
 
         submitExpensePage.submitExpense(
             "50.00",
@@ -64,6 +73,7 @@ public class ViewPendingExpenseSteps {
     }
     @Then("the newly submitted expense should appear in the pending expenses list")
     public void the_newly_submitted_expense_should_appear_in_the_pending_expenses_list() {
-        assertTrue(managerDashboardPage.findExpense(expenseDescription));
+        assertTrue(managerDashboardPage.findExpense(context.getExpenseDescription()));
+        assertTrue(managerDashboardPage.verifyExpenseStatus(context.getExpenseDescription(), "PENDING"));
     }
 }

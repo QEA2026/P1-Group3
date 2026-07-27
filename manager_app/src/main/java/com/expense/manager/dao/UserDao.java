@@ -116,9 +116,7 @@ public class UserDao {
             statement.setString(2, user.getPassword());
             statement.setString(3, user.getRole());
             statement.executeUpdate();
-            System.out.println("executed query");
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                System.out.println("got generatedKeys");
                 if (generatedKeys.next()) {
                     int userId = generatedKeys.getInt(1);
                     user.setId(userId);
