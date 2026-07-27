@@ -89,7 +89,6 @@ public class EmployeeRestAssuredAPITests {
 					.delete("/expenses/" + expense.getId())
 					.then()
 					.statusCode(201);
-			System.out.println("Deleted expense " + expense.getId());
 		}
 		dirtyExpenses = new ArrayList<>();
 	}
@@ -160,7 +159,6 @@ public class EmployeeRestAssuredAPITests {
 			given()
 					.delete("/approvals/" + approval.getId())
 					.then();
-			System.out.println("Deleted approval " + approval.getId());
 		}
 		dirtyApprovals = new ArrayList<>();
 	}
@@ -173,7 +171,6 @@ public class EmployeeRestAssuredAPITests {
 			given()
 					.delete("/users/" + user.getId())
 					.then();
-			System.out.println("Deleted user " + user.getId());
 		}
 		dirtyUsers = new ArrayList<>();
 	}
