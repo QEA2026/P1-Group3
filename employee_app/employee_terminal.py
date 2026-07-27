@@ -63,8 +63,16 @@ def submit_expense(user:User):
         requests.post(f"{BASE_URL}/approvals", json=approval_payload)
         print("\nExpense submitted successfully!")
         input("\nPress Enter to continue...")
-    except Exception as e:
-        print(f"\nAn error occurred while submitting: {e}")
+    except requests.exceptions.ConnectionError:
+        print("\nUnable to connect to the server. Please try again later.")
+        input("\nPress Enter to continue...")
+
+    except requests.exceptions.RequestException:
+        print("\nA network error occurred while submitting the expense.")
+        input("\nPress Enter to continue...")
+
+    except Exception:
+        print("\nAn unexpected error occurred while submitting the expense.")
         input("\nPress Enter to continue...")
         
 
