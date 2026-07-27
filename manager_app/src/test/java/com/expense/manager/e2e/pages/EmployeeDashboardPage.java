@@ -49,4 +49,31 @@ public class EmployeeDashboardPage {
         return status.equals(expectedStatus);
     }
 
+    public void reviewExpense(String expenseDescription) {
+        WebElement expenseRow = wait.until(
+            ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//table/tbody/tr[td[4]='" + expenseDescription + "']")
+            )
+        );
+
+        WebElement reviewButton = expenseRow.findElement(
+            By.xpath(".//button[contains(text(),'Review')]")
+        );
+
+        wait.until(
+            ExpectedConditions.elementToBeClickable(reviewButton)
+        ).click();
+    }
+
+    public String getReviewComment(String expenseDescription) {
+        reviewExpense(expenseDescription);
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.xpath("//p[text()='Review Comment']/following-sibling::div")
+        )).getText();
+    }
+
+    public boolean verifyComment(String expenseDescription, String expectedComment){
+        return getReviewComment(expenseDescription).equals(expectedComment);
+    }
+
 }

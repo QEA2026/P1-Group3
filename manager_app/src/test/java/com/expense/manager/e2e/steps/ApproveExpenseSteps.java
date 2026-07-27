@@ -7,7 +7,6 @@ import com.expense.manager.e2e.hooks.Hooks;
 import com.expense.manager.e2e.pages.EmployeeDashboardPage;
 import com.expense.manager.e2e.pages.LoginPage;
 import com.expense.manager.e2e.pages.ManagerDashboardPage;
-import com.expense.manager.e2e.pages.SubmitExpensePage;
 
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Then;
@@ -33,10 +32,13 @@ public class ApproveExpenseSteps {
         managerDashboardPage = new ManagerDashboardPage(driver);
     }
 
+    @When("the manager opens the expense for review")
+    public void the_manager_opens_the_expense_for_review() {
+        managerDashboardPage.reviewExpense(context.getExpenseDescription());
+    }
 
     @When("the manager approves the expense")
     public void the_manager_approves_the_expense() {
-        managerDashboardPage.reviewExpense(context.getExpenseDescription());
         managerDashboardPage.clickApprove();
     }
     @Then("the expense status should be {string} on the manager page")

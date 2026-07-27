@@ -108,6 +108,8 @@ public class ManagerDashboardPage {
         )).click();
     }
 
-
+    public void addComment(String comment){
+        driver.findElement(By.id("decision-comment")).sendKeys(comment);
+    }
 
 }
