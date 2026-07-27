@@ -7,7 +7,9 @@ import io.restassured.http.ContentType;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 
@@ -16,10 +18,12 @@ public class EmployeeRequests {
     private List<Expense> dirtyExpenses;
     private List<Approval> dirtyApprovals;
     private final User manager;
+    private Map<Integer, Integer> expenseToApproval;
 
     public EmployeeRequests(User manager) {
         this.dirtyExpenses = new ArrayList<>();
         this.dirtyApprovals = new ArrayList<>();
+        this.expenseToApproval = new HashMap<>();
         this.manager = manager;
     }
 
@@ -92,10 +96,26 @@ public class EmployeeRequests {
                 .statusCode(201)
                 .extract().as(Approval.class);
         dirtyApprovals.add(newApproval);
-
-
-
-
+        expenseToApproval.put(newExpense.getId(), newApproval.getId());
         return newExpense;
+    }
+
+    /**
+     *
+     * @param expenseId corresponding expense ID
+     * @return updated approval for the given expense ID
+     */
+    public Approval getApproval(int expenseId) {
+        int approvalId = expenseToApproval.get(expenseId);
+        try {
+            return given()
+                    .when()
+                    .get("/approvals/" + approvalId)
+                    .then()
+                    .extract()
+                    .as(Approval.class);
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 }
