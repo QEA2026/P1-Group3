@@ -15,7 +15,6 @@ import io.cucumber.java.en.When;
 
 public class ApproveExpenseSteps {
     private WebDriver driver;
-    private static final String LOGIN_URL = "http://localhost:5173/";
     private LoginPage loginPage;
     private EmployeeDashboardPage employeeDashboardPage;
     private ManagerDashboardPage managerDashboardPage;
@@ -41,9 +40,8 @@ public class ApproveExpenseSteps {
         managerDashboardPage.clickApprove();
     }
     @Then("the expense status should be {string} on the manager page")
-    public void the_expense_status_should_be_on_the_manager_page(String string) {
-        managerDashboardPage.clickFilterByApproved();
-        managerDashboardPage.verifyExpenseStatus(context.getExpenseDescription(), "APPROVED");
+    public void the_expense_status_should_be_on_the_manager_page(String status) {
+        managerDashboardPage.verifyExpenseStatus(context.getExpenseDescription(), status);
     }
     @When("the manager logs out")
     public void the_manager_logs_out() {
@@ -58,7 +56,7 @@ public class ApproveExpenseSteps {
         employeeDashboardPage.clickHistory();
     }
     @Then("the expense status should be {string} on the employee history page")
-    public void the_expense_status_should_be_on_the_employee_history_page(String string) {
-        employeeDashboardPage.verifyExpenseStatus(context.getExpenseDescription(), "APPROVED");
+    public void the_expense_status_should_be_on_the_employee_history_page(String status) {
+        employeeDashboardPage.verifyExpenseStatus(context.getExpenseDescription(), status);
     }
 }
