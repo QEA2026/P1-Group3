@@ -6,6 +6,7 @@ Feature: Manager approves newly submitted expenses
     And the employee logs out
     And the manager logs in
     And the manager navigates to the pending expenses page
+    And the manager opens the expense for review
     And the manager approves the expense
     Then the expense status should be "APPROVED" on the manager page
     When the manager logs out
