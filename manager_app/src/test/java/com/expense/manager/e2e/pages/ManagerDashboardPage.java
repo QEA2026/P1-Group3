@@ -36,13 +36,78 @@ public class ManagerDashboardPage {
         );
 
         for (WebElement cell : descriptions) {
-            System.out.println("Found expense: " + cell.getText());
-
             if (cell.getText().equals(expenseDescription)) {
                 return true;
             }
         }
 
         return false;
-    }      
+    }    
+
+    public void clickFilterByApproved() {
+        wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[contains(text(),'APPROVED')]")
+        )).click();
+    }
+
+    public void clickFilterByDenied() {
+        wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[contains(text(),'DENIED')]")
+        )).click();
+    }
+    
+    public void reviewExpense(String expenseDescription) {
+        WebElement expenseRow = wait.until(
+            ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//table/tbody/tr[td[4]='" + expenseDescription + "']")
+            )
+        );
+
+        WebElement reviewButton = expenseRow.findElement(
+            By.xpath(".//button[contains(text(),'Review')]")
+        );
+
+        wait.until(
+            ExpectedConditions.elementToBeClickable(reviewButton)
+        ).click();
+    }
+
+    public void clickApprove() {
+        wait.until(
+            ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[contains(text(),'Approve')]")
+            )
+        ).click();
+    }
+
+    public void clickDeny() {
+        wait.until(
+            ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[contains(text(),'Deny')]")
+            )
+        ).click();
+    }
+
+    public boolean verifyExpenseStatus(String expenseDescription, String expectedStatus) {
+        WebElement expenseRow = wait.until(
+            ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//table/tbody/tr[td[4]='" + expenseDescription + "']")
+            )
+        );
+
+        String status = expenseRow.findElement(
+            By.xpath("./td[6]")
+        ).getText();
+
+        return status.equals(expectedStatus);
+    }
+
+    public void logout() {
+        wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[contains(text(),'Logout')]")
+        )).click();
+    }
+
+
+
 }
