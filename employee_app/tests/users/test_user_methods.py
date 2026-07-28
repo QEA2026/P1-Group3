@@ -43,6 +43,21 @@ class TestGetFromId:
         conn.close.assert_called_once()
 
     @patch("controllers.users.get_connection")
+    def test_get_from_id_found_str(self, mock_get_connection):
+        conn = MagicMock()
+        mock_get_connection.return_value = conn
+
+        conn.execute.return_value.fetchone.return_value = (
+            1, "alice", "pw", "Employee"
+        )
+
+        user = get_from_id(1)
+
+        assert user.__str__() == (f"User #{user.id}: {user.username} ({user.role})")
+
+        conn.close.assert_called_once()
+
+    @patch("controllers.users.get_connection")
     def test_get_from_id_not_found(self, mock_get_connection):
         conn = MagicMock()
         mock_get_connection.return_value = conn

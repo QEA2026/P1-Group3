@@ -56,3 +56,30 @@ class TestEdit:
             edit(expense)
 
         assert str(e.value) == "Database execution failed"
+
+    @patch("controllers.expenses.get_from_id")
+    def test_edit_expenseNotFoundShouldReturnNone(self, mock_get_from_id):
+        mock_get_from_id.return_value = None
+
+        expense = Expense(1, 1, "description", "date", 1)
+
+        edited_expense = edit(expense)
+
+        assert edited_expense is None
+
+    @patch("controllers.expenses.get_from_id")
+    @patch("controllers.expenses.get_connection")
+    def test_edit_zeroRowUpdatedShouldReturnNone(self, mock_get_connection, mock_get_from_id):
+        expense = Expense(1, 10, "new expense", "new date", id=5)
+        mock_get_from_id.return_value = MagicMock()
+
+        conn = MagicMock()
+        mock_get_connection.return_value.__enter__.return_value = conn
+
+        cursor = MagicMock()
+        conn.execute.return_value = cursor
+        cursor.rowcount = 0
+
+        edited_expense = edit(expense)
+
+        assert edited_expense is None

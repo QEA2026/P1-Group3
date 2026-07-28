@@ -62,5 +62,5 @@ class TestRemoveUser:
 
         result = remove(999)
 
-        assert result is False
+        assert result == 0
         cursor.execute.assert_called_once()

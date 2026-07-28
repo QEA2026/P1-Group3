@@ -76,6 +76,23 @@ class TestGetFromId:
         assert result.review_date == "2026-07-23"
 
     @patch("controllers.approvals.get_connection")
+    def test_get_from_valid_id_str(self, mock_get_connection):
+        conn = MagicMock()
+        mock_get_connection.return_value = conn
+
+        conn.execute.return_value.fetchone.return_value = (1, 40, "approved", 7, "Looks good", "2026-07-23")
+        result = get_from_id(1)
+
+        assert str(result) == (
+        "Approval #" + str(result.id) +
+        ": expense #" + str(result.expense_id) +
+        " is " + result.status +
+        " by reviewer #" + str(result.reviewer) +
+        " on " + str(result.review_date) +
+        ". Comment: " + str(result.comment)
+    )
+
+    @patch("controllers.approvals.get_connection")
     def test_get_from_invalid_id(self, mock_get_connection):
         conn = MagicMock()
         mock_get_connection.return_value = conn
