@@ -7,7 +7,7 @@ import type {
 } from '../types/models'
 import { ReviewModal } from './ReviewModal'
 import { DecisionModal } from './DecisionModal'
-import { downloadCsv } from '../utils/downloadCSV'
+import { downloadCsv } from '../utils/downloadCsv'
 import { DateFilter } from './DateFilter'
 import { LogoutButton } from './LogoutButton'
 import { useNavigate } from 'react-router-dom'

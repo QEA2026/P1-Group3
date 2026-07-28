@@ -15,31 +15,45 @@ DB_DIR = os.path.join(EMPLOYEE_APP_DIR, "db")
 DB_FILE = os.path.join(REPO_ROOT, "expenses_system_db.db")
 
 
+def before_all(context):
+    context.base_url = BASE_URL
+    context.driver = webdriver.Chrome()
+    context.driver.implicitly_wait(5)
+
+
 def reset_database():
     if os.path.exists(DB_FILE):
         os.remove(DB_FILE)
-    subprocess.run([sys.executable, "seed.py"], cwd=DB_DIR, check=True)
+
+    subprocess.run(
+        [sys.executable, "seed.py"],
+        cwd=DB_DIR,
+        check=True
+    )
+
 
 def before_scenario(context, scenario):
     reset_database()
-    # Clear browser state from previous scenario
+
     context.driver.delete_all_cookies()
 
-    # Navigate to the app first so JavaScript can access its storage
     context.driver.get(context.base_url)
 
-    context.driver.execute_script("window.localStorage.clear();")
-    context.driver.execute_script("window.sessionStorage.clear();")
+    context.driver.execute_script(
+        "window.localStorage.clear();"
+    )
+    context.driver.execute_script(
+        "window.sessionStorage.clear();"
+    )
 
-    # Reload with a clean application state
     context.driver.refresh()
+
 
 def after_step(context, step):
     if SLOW_MO:
         time.sleep(SLOW_MO)
 
 
-def after_scenario(context, scenario):
-    if SLOW_MO:
-        time.sleep(SLOW_MO * 2)
-    context.driver.quit()
+def after_all(context):
+    if hasattr(context, "driver"):
+        context.driver.quit()

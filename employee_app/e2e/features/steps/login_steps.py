@@ -4,7 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-@given("the employee app is launched")
+@given("the app is launched")
 def step_launch_app(context):
     context.driver.get(context.base_url)
 
