@@ -256,7 +256,7 @@ export default function ManagerDashboard() {
           <div className="flex flex-row ml-auto items-center">
                 <div className="font-semibold text-xl mr-4">
                     Total {getTotalTitleByFilter(filter)}: ${filteredExpenses.reduce((total: number, expense: Expense)=>{
-                        if(approvals[expense.id].status.toUpperCase() == "DENIED" && filter !== "DENIED"){
+                        if(approvals[expense.id]?.status.toUpperCase() == "DENIED" && filter !== "DENIED"){
                             return total
                         }
                         return total + expense.amount
