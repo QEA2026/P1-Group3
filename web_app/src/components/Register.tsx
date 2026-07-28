@@ -180,14 +180,14 @@ export default function Register({
 
             {/* Error */}
             {error && (
-              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+              <div id="error-msg" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
                 <p className="text-sm text-red-600">
                   {error}
                 </p>
               </div>
             )}
             {isRegisterSuccessfully && (
-                <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+                <div id="success-msg" className="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
                     <p className="text-sm text-green-600">
                     Register succesfully!
                     </p>
