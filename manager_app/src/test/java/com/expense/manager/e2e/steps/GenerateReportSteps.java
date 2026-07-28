@@ -1,5 +1,6 @@
 package com.expense.manager.e2e.steps;
 
+import com.expense.manager.e2e.hooks.Hooks;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -35,8 +36,7 @@ public class GenerateReportSteps {
 
     @Before
     public void setUp() {
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
+        driver = Hooks.driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
