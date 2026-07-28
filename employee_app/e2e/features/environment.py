@@ -21,25 +21,7 @@ def before_all(context):
     context.driver.implicitly_wait(5)
 
 
-def reset_database():
-    if os.path.exists(DB_FILE):
-        try:
-            os.remove(DB_FILE)
-        except PermissionError:
-            # Windows may have a locked SQLite file
-            time.sleep(0.5)
-            os.remove(DB_FILE)
-
-    subprocess.run(
-        [sys.executable, "seed.py"],
-        cwd=DB_DIR,
-        check=True
-    )
-
-
 def before_scenario(context, scenario):
-    reset_database()
-
     context.driver.delete_all_cookies()
 
     context.driver.get(context.base_url)
