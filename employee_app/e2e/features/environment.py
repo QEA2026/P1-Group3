@@ -23,7 +23,12 @@ def before_all(context):
 
 def reset_database():
     if os.path.exists(DB_FILE):
-        os.remove(DB_FILE)
+        try:
+            os.remove(DB_FILE)
+        except PermissionError:
+            # Windows may have a locked SQLite file
+            time.sleep(0.5)
+            os.remove(DB_FILE)
 
     subprocess.run(
         [sys.executable, "seed.py"],
