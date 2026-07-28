@@ -34,8 +34,7 @@ public class GenerateReportSteps {
     private WebDriverWait wait;
 
 
-    @Before
-    public void setUp() {
+    public GenerateReportSteps() {
         driver = Hooks.driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
