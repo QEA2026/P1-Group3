@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 import time
 
@@ -9,24 +10,15 @@ SLOW_MO = float(os.environ.get("SLOW_MO", "0"))
 
 FEATURES_DIR = os.path.dirname(os.path.abspath(__file__))
 EMPLOYEE_APP_DIR = os.path.dirname(os.path.dirname(FEATURES_DIR))
+REPO_ROOT = os.path.dirname(EMPLOYEE_APP_DIR)
 DB_DIR = os.path.join(EMPLOYEE_APP_DIR, "db")
-
-sys.path.insert(0, DB_DIR)
-from db import get_connection, init_db
-import seed as seed_module
+DB_FILE = os.path.join(REPO_ROOT, "expenses_system_db.db")
 
 
 def reset_database():
-    init_db()
-
-    conn = get_connection()
-    conn.execute("DELETE FROM approvals")
-    conn.execute("DELETE FROM expenses")
-    conn.execute("DELETE FROM users")
-    conn.commit()
-    conn.close()
-
-    seed_module.seed(get_connection())
+    if os.path.exists(DB_FILE):
+        os.remove(DB_FILE)
+    subprocess.run([sys.executable, "seed.py"], cwd=DB_DIR, check=True)
 
 
 def before_scenario(context, scenario):
