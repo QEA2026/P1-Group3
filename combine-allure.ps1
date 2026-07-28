@@ -6,6 +6,8 @@ New-Item -ItemType Directory combined-allure-results | Out-Null
 
 # Copy Python results
 Copy-Item employee_app\allure-results\* combined-allure-results\
+Copy-Item employee_app\e2e\allure-results\* combined-allure-results\
+
 
 # Copy Java results
 Copy-Item manager_app\allure-results\* combined-allure-results\
