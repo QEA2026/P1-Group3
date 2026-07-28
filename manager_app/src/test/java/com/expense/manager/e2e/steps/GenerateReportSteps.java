@@ -34,9 +34,15 @@ public class GenerateReportSteps {
     private WebDriverWait wait;
 
 
-    public GenerateReportSteps() {
+    @Before(order = 1)
+    public void setUp() {
         driver = Hooks.driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
+
+    @io.cucumber.java.After(order = 1)
+    public void tearDown() {
+        // Driver is cleaned up by Hooks
     }
 
 

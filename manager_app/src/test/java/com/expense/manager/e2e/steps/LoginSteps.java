@@ -25,10 +25,15 @@ public class LoginSteps {
     private static final String LOGIN_URL = "http://localhost:5173/";
     private LoginPage loginPage;
 
-    @Before
+    @Before(order = 1)
     public void setUpPages() {
         driver = Hooks.driver;
         loginPage = new LoginPage(driver);
+    }
+
+    @After(order = 1)
+    public void tearDown() {
+        // Driver is cleaned up by Hooks
     }
 
     @Given("the user is on the manager login page")
