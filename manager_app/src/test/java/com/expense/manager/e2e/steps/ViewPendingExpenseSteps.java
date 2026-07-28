@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.description;
 
+import io.cucumber.java.After;
 import org.openqa.selenium.WebDriver;
 
 import com.expense.manager.e2e.pages.EmployeeDashboardPage;
@@ -16,6 +17,7 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 public class ViewPendingExpenseSteps {
     private WebDriver driver;
@@ -32,12 +34,20 @@ public class ViewPendingExpenseSteps {
 
     @Before
     public void setUpPages() {
-        driver = Hooks.driver;
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
 
         loginPage = new LoginPage(driver);
         employeeDashboardPage = new EmployeeDashboardPage(driver);
         submitExpensePage = new SubmitExpensePage(driver);
         managerDashboardPage = new ManagerDashboardPage(driver);
+    }
+
+    @After
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     @Given("an employee is logged in")

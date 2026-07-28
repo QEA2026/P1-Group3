@@ -27,8 +27,15 @@ public class LoginSteps {
 
     @Before
     public void setUpPages() {
-        driver = Hooks.driver;
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+
         loginPage = new LoginPage(driver);
+    }
+
+    @After
+    public void tearDown() {
+        if (driver != null) {driver.quit();}
     }
 
     @Given("the user is on the manager login page")
@@ -60,13 +67,13 @@ public class LoginSteps {
     public void the_login_result_should_be(String result) {
         if (result.equals("success")) {
             new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.urlContains("/manager"));
+                    .until(ExpectedConditions.urlContains("/manager"));
 
             assertTrue(driver.getCurrentUrl().contains("/manager"));
         } else {
             WebElement error = new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.visibilityOfElementLocated(
-                    By.cssSelector("p.text-red-600")));
+                    .until(ExpectedConditions.visibilityOfElementLocated(
+                            By.cssSelector("p.text-red-600")));
 
             assertEquals("Username or password not valid.", error.getText());
 
