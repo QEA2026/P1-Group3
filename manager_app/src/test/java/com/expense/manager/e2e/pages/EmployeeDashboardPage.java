@@ -52,7 +52,7 @@ public class EmployeeDashboardPage {
     public void reviewExpense(String expenseDescription) {
         WebElement expenseRow = wait.until(
             ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//table/tbody/tr[td[4]='" + expenseDescription + "']")
+                By.xpath("//table/tbody/tr[td[3]='" + expenseDescription + "']")
             )
         );
 
@@ -60,13 +60,11 @@ public class EmployeeDashboardPage {
             By.xpath(".//button[contains(text(),'Review')]")
         );
 
-        wait.until(
-            ExpectedConditions.elementToBeClickable(reviewButton)
-        ).click();
+        wait.until(ExpectedConditions.elementToBeClickable(reviewButton)).click();
     }
 
     public String getReviewComment(String expenseDescription) {
-        reviewExpense(expenseDescription);
+        // reviewExpense(expenseDescription);
         return wait.until(ExpectedConditions.visibilityOfElementLocated(
             By.xpath("//p[text()='Review Comment']/following-sibling::div")
         )).getText();

@@ -89,17 +89,18 @@ public class ManagerDashboardPage {
     }
 
     public boolean verifyExpenseStatus(String expenseDescription, String expectedStatus) {
-        WebElement expenseRow = wait.until(
-            ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//table/tbody/tr[td[4]='" + expenseDescription + "']")
-            )
+        By statusLocator = By.xpath(
+            "//table/tbody/tr[td[4]='" + expenseDescription + "']/td[6]"
         );
 
-        String status = expenseRow.findElement(
-            By.xpath("./td[6]")
-        ).getText();
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(
+            statusLocator,
+            expectedStatus
+        ));
 
-        return status.equals(expectedStatus);
+        return driver.findElement(statusLocator)
+                    .getText()
+                    .equals(expectedStatus);
     }
 
     public void logout() {
@@ -108,8 +109,13 @@ public class ManagerDashboardPage {
         )).click();
     }
 
-    public void addComment(String comment){
-        driver.findElement(By.id("decision-comment")).sendKeys(comment);
-    }
+    public void addComment(String comment) {
+        WebElement commentBox = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(
+                By.id("decision-comment")
+            )
+        );
 
+        commentBox.sendKeys(comment);
+    }
 }
