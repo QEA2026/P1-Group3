@@ -393,6 +393,26 @@ class TestExpenseEndpoints:
 
         assert response.status_code == 404
 
+    @patch("app.expenses.get_from_id")
+    @patch("app.expenses.edit")
+    def test_edit_expense_failed(self, mock_edit, mock_get):
+        expense = MagicMock()
+        mock_get.return_value = expense
+
+        mock_edit.return_value = None
+
+        response = self.client.put(
+            "/expenses/999",
+            json={
+                "user_id": 7,
+                "amount": 50.00,
+                "description": "Dinner",
+                "date": "2026-07-24"
+            }
+        )
+
+        assert response.status_code == 404
+
     @patch("app.expenses.remove")
     @patch("app.expenses.get_from_id")
     def test_delete_expense_success(self, mock_get, mock_remove):

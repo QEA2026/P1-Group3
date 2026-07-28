@@ -20,14 +20,8 @@ def reset_database():
         os.remove(DB_FILE)
     subprocess.run([sys.executable, "seed.py"], cwd=DB_DIR, check=True)
 
-
 def before_scenario(context, scenario):
     reset_database()
-    context.driver = webdriver.Chrome()
-    context.driver.implicitly_wait(5)
-    context.base_url = BASE_URL
-
-def before_scenario(context, scenario):
     # Clear browser state from previous scenario
     context.driver.delete_all_cookies()
 

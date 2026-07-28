@@ -97,15 +97,8 @@ def remove(user_id):
         (user_id,)
     )
 
-    rowcount = getattr(cursor, "rowcount", None)
-    if rowcount is None:
-        deleted = True
-    else:
-        try:
-            deleted = int(rowcount) > 0
-        except (TypeError, ValueError):
-            deleted = bool(rowcount)
+    rowcount = cursor.rowcount
 
     conn.commit()
     conn.close()
-    return deleted
+    return rowcount

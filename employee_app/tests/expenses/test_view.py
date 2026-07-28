@@ -127,3 +127,16 @@ class TestView:
         assert result.amount == 50
         assert result.description == "Description 1"
         assert result.date == "2026-07-31"
+
+    @patch("controllers.expenses.get_connection")
+    def test_getFromId_noneRowShouldReturnNone(self, mock_get_connection):
+        mock_conn = MagicMock()
+        mock_get_connection.return_value = mock_conn
+
+        mock_conn.execute.return_value.fetchone.return_value = None
+
+        result = get_from_id(1)
+
+        assert mock_conn.execute.call_args[0][1] == (1,)
+
+        assert result is None
