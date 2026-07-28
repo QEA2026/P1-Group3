@@ -10,6 +10,7 @@ import com.expense.manager.e2e.pages.ManagerDashboardPage;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 public class CommentExpenseSteps {
     private WebDriver driver;
@@ -21,11 +22,16 @@ public class CommentExpenseSteps {
         this.context = context;
     }
 
-    @Before
+    @Before(order = 1)
     public void setUpPages() {
         driver = Hooks.driver;
         managerDashboardPage = new ManagerDashboardPage(driver);
         employeeDashboardPage = new EmployeeDashboardPage(driver);
+    }
+
+    @io.cucumber.java.After(order = 1)
+    public void tearDown() {
+        // Driver is cleaned up by Hooks
     }
 
     
