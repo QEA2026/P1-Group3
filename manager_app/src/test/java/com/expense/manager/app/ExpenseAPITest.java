@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 These tests require the employee backend to be running.
  */
 public class ExpenseAPITest {
-    public static EmployeeRequests employeeRequests;
+    static EmployeeRequests employeeRequests;
     public static User TEST_EMPLOYEE;
     public static User TEST_MANAGER;
 
@@ -55,8 +55,7 @@ public class ExpenseAPITest {
                 .statusCode(200)
                 .extract()
                 .as(User.class);
-        System.out.println("Test employee: " + TEST_EMPLOYEE);
-        System.out.println("Test manager: " + TEST_MANAGER);
+
     }
     static void deleteTestUsers() {
         for (User user: List.of(TEST_EMPLOYEE, TEST_MANAGER)) {
@@ -93,12 +92,15 @@ public class ExpenseAPITest {
     @Test
     @DisplayName("GET /expenses returns all expenses")
     void get_expenses_ReturnsEverything() {
-        List<Expense> expenses = given()
-                .get()
-                .then()
-                .statusCode(200)
-                .extract().response().jsonPath().getList("$", Expense.class);
-        assertNotNull(expenses);
+        assertDoesNotThrow(() -> {
+            List<Expense> expenses = given()
+                    .get()
+                    .then()
+                    .statusCode(200)
+                    .extract().response().jsonPath().getList("$", Expense.class);
+            assertNotNull(expenses);
+        }, "GET /expenses does not return a list of expenses");
+
     }
 
     @Test

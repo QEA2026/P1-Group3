@@ -60,19 +60,18 @@ public class LoginSteps {
     public void the_login_result_should_be(String result) {
         if (result.equals("success")) {
             new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.textToBePresentInElementLocated(
-                    By.tagName("h1"), "Manager Expense Portal"));
+                .until(ExpectedConditions.urlContains("/manager"));
 
-            assertTrue(driver.findElement(By.tagName("h1"))
-                .getText()
-                .contains("Manager Expense Portal"));
+            assertTrue(driver.getCurrentUrl().contains("/manager"));
         } else {
             WebElement error = new WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(ExpectedConditions.visibilityOfElementLocated(
                     By.cssSelector("p.text-red-600")));
 
             assertEquals("Username or password not valid.", error.getText());
+
+            // Optional: verify failed login stays on login page
+            assertTrue(driver.getCurrentUrl().equals(LOGIN_URL));
         }
     }
-
 }
