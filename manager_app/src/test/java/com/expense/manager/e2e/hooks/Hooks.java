@@ -10,16 +10,17 @@ public class Hooks {
 
     public static WebDriver driver;
 
-    @Before
+    @Before(order = 0)
     public void setup() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
     }
 
-    @After
+    @After(order = 0)
     public void teardown() {
         if(driver != null) {
             driver.quit();
+            driver = null;
         }
     }
 }
