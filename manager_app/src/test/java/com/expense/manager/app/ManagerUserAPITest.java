@@ -1,25 +1,15 @@
 package com.expense.manager.app;
 
-import com.expense.manager.models.Expense;
 import com.expense.manager.models.User;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
-
-
 
 /*
 Note: Because of the unique username constraint, this code assumes that some usernames don't exist.
@@ -27,7 +17,8 @@ Run this code with the base database from seed.py.
 I chose silly names for the tests, so existing users shouldn't be a problem unless you have a user called
 "John Employee" or "John Manager".
  */
-public class UserAPITest {
+@DisplayName("Manager User API")
+public class ManagerUserAPITest {
 
     static List<User> dirtyUsers;
 

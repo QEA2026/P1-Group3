@@ -4,18 +4,17 @@ import com.expense.manager.api.EmployeeRequests;
 import com.expense.manager.models.Expense;
 import com.expense.manager.models.User;
 import com.expense.manager.models.Approval;
-import io.cucumber.java.ja.且つ;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ApprovalAPITest {
+@DisplayName("Manager Approval API")
+public class ManagerApprovalAPITest {
     static EmployeeRequests employeeRequests;
     public static User TEST_EMPLOYEE;
     public static User TEST_MANAGER;
@@ -91,7 +90,7 @@ public class ApprovalAPITest {
     @DisplayName("GET /approvals gets a valid list of approvals")
     void get_approvals_validList() {
         assertDoesNotThrow(() -> {
-            List<Approval> approvals = given()
+            given()
                     .when()
                     .get("/approvals")
                     .then()
