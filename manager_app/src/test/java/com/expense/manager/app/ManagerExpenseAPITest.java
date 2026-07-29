@@ -17,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /*
 These tests require the employee backend to be running.
  */
-public class ExpenseAPITest {
+@DisplayName("Manager Expense API")
+public class ManagerExpenseAPITest {
     static EmployeeRequests employeeRequests;
     public static User TEST_EMPLOYEE;
     public static User TEST_MANAGER;

@@ -1,4 +1,4 @@
-package com.expense.manager.api;
+package com.expense.manager.app;
 //REST assured Setup and First Tests
 
 import io.restassured.RestAssured;
@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@DisplayName("API Tests")
+@DisplayName("Employee API Tests")
 public class EmployeeRestAssuredAPITests {
 	private static User TEST_EMPLOYEE;
 	private static User TEST_MANAGER;
