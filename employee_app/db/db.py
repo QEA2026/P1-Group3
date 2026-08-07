@@ -1,13 +1,20 @@
+import os
 import sqlite3
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DB_PATH = PROJECT_ROOT / "expenses_system_db.db"
+container = os.environ.get("CONTAINER")
+if (container != None and container == "DOCKER"):
+    DB_PATH = os.environ.get("DATABASE_URL")
+else:
+    PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    DB_PATH = PROJECT_ROOT / "expenses_system_db.db"
+
 
 def get_connection():
+
+    print(f"DB_PATH is {DB_PATH}")
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
-    print(f"DB_PATH is {DB_PATH}")
 
     return conn
 

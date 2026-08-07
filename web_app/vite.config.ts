@@ -9,4 +9,9 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
   ],
+  // changed to be available in any port for dockerization
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+  },
 })

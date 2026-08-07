@@ -1,10 +1,12 @@
 from controllers import approvals, expenses, users
 from models.expenses import Expense
 from flask_cors import CORS
+from db.db import init_db
 
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
+init_db()
 
 CORS(app)
 
