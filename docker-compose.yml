@@ -1,0 +1,30 @@
+services:
+
+  frontend:
+    build: ./web_app
+    ports:
+      - "5173:5173"
+
+  employee-backend:
+    build: ./employee_app
+    ports:
+      - "8080:8080"
+    volumes:
+      - "sqlite_data:/var/lib/sqlite/data"
+
+  manager-backend:
+    build: ./manager_app
+    ports:
+      - "9090:9090"
+    volumes:
+      - "sqlite_data:/var/lib/sqlite/data"
+
+  sqlite:
+    build: .
+    volumes:
+      - sqlite_data:/var/lib/sqlite/data
+    ports:
+      - "7070:7070"
+
+volumes:
+  sqlite_data:

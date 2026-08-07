@@ -7,6 +7,8 @@ DB_PATH = PROJECT_ROOT / "expenses_system_db.db"
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    print(f"DB_PATH is {DB_PATH}")
+
     return conn
 
 def init_db():
