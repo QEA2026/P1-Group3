@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Map;
 
 @Component
 public class Database {
@@ -18,6 +19,10 @@ public class Database {
     }
 
     private static String getDatabasePath() {
+        Map<String, String> env = System.getenv();
+        if (env.get("CONTAINER") != null && env.get("CONTAINER").equals("DOCKER")) {
+            return env.get("DATABASE_URL");
+        }
         Path projectRoot = findProjectRoot();
         if (projectRoot != null) {
             return projectRoot.resolve(DB_NAME).toString();
