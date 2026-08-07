@@ -1,5 +1,6 @@
-package com.expense.manager.controller;
+package com.expense.manager.unit.controller;
 
+import com.expense.manager.controller.ExpenseController;
 import com.expense.manager.dao.ExpenseDao;
 import com.expense.manager.models.Expense;
 import org.junit.jupiter.api.DisplayName;

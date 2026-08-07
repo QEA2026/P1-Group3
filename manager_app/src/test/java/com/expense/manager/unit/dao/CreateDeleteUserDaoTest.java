@@ -1,5 +1,6 @@
-package com.expense.manager.dao;
+package com.expense.manager.unit.dao;
 
+import com.expense.manager.dao.UserDao;
 import com.expense.manager.db.Database;
 import com.expense.manager.models.User;
 import org.junit.jupiter.api.DisplayName;
@@ -31,8 +32,6 @@ class CreateDeleteUserDaoTest {
     ResultSet generatedKeys;
     @InjectMocks
     UserDao userDao;
-
-
 
     @Test
     @DisplayName("Create User - Success")
@@ -67,8 +66,7 @@ class CreateDeleteUserDaoTest {
 
         SQLException exception = assertThrows(
                 SQLException.class,
-                () -> userDao.create(user)
-        );
+                () -> userDao.create(user));
 
         assertEquals("Database failed", exception.getMessage());
     }
@@ -110,8 +108,7 @@ class CreateDeleteUserDaoTest {
 
         SQLException exception = assertThrows(
                 SQLException.class,
-                () -> userDao.delete(1)
-        );
+                () -> userDao.delete(1));
 
         assertEquals("Database failed", exception.getMessage());
     }
