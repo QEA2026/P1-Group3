@@ -2,8 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /employee_app
 
-# is this dangerous?
-COPY . .
+COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
