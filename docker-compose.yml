@@ -1,6 +1,9 @@
 services:
 
   frontend:
+    depends_on:
+      - employee-backend
+      - manager-backend
     build: ./web_app
     ports:
       - "5173:5173"

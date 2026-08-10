@@ -1,8 +1,7 @@
 # Build stage
 FROM maven:3.8-openjdk-17 AS build
 WORKDIR /manager_app
-COPY pom.xml .
-COPY src ./src
+COPY . .
 RUN mvn clean package -DskipTests
 
 # Runtime stage
