@@ -14,7 +14,7 @@ import java.util.Map;
 import static io.restassured.RestAssured.given;
 
 public class EmployeeRequests {
-    private static final String employeeURI = "http://127.0.0.1:8080";
+    private static final String employeeURI = "http://127.0.0.1:7070";
     private List<Expense> dirtyExpenses;
     private List<Approval> dirtyApprovals;
     private final User manager;

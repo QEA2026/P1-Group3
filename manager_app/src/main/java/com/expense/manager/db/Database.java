@@ -11,29 +11,11 @@ import java.sql.SQLException;
 
 @Component
 public class Database {
-    private static final String DB_NAME = "expenses_system_db.db";
-
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:sqlite:" + getDatabasePath());
     }
 
     private static String getDatabasePath() {
-        Path projectRoot = findProjectRoot();
-        if (projectRoot != null) {
-            return projectRoot.resolve(DB_NAME).toString();
-        }
-
-        return Paths.get(DB_NAME).toAbsolutePath().toString();
-    }
-
-    private static Path findProjectRoot() {
-        Path path = Paths.get("").toAbsolutePath();
-        while (path != null) {
-            if (Files.exists(path.resolve(DB_NAME))) {
-                return path;
-            }
-            path = path.getParent();
-        }
-        return null;
+        return "/app/data/expense_system.db";
     }
 }

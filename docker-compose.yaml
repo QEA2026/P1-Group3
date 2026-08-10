@@ -1,0 +1,25 @@
+services:
+  web:
+    build: ./web_app
+    depends_on: 
+      - employee_app
+      - manager_app
+    ports:
+      - "5173:5173"
+  
+  employee_app:
+    build: ./employee_app
+    ports:
+      - "7070:7070"
+    volumes:
+      - db_data:/app/data
+
+  manager_app:
+    build: ./manager_app
+    ports:
+      - "9090:9090"
+    volumes:
+      - db_data:/app/data
+  
+volumes:
+  db_data:

@@ -1,4 +1,5 @@
 from controllers import approvals, expenses, users
+from db import init_db, seed
 from models.expenses import Expense
 from flask_cors import CORS
 
@@ -172,5 +173,8 @@ def handle_get_non_pending_user_expenses(user_id):
     history_expenses = expenses.get_all_non_pending_user(user_id)
     return jsonify([e.__dict__ for e in history_expenses]), 200
 
+init_db()
+seed()
+
 if __name__ == "__main__": # pragma: no cover
-    app.run(host='0.0.0.0', port=8080, debug=False)
+    app.run(host='0.0.0.0', port=7070, debug=False)
