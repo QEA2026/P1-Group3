@@ -22,7 +22,7 @@ pipeline {
 
         stage('Java Tests') {
             steps {
-                sh 'docker compose run --rm manager mvn test'
+                sh 'docker run --rm -v "$PWD/manager_app:/app" -w /app maven:3.9.9-eclipse-temurin-21 mvn test'
             }
         }
 
