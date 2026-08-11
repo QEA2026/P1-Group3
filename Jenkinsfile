@@ -11,7 +11,7 @@ pipeline {
         stage('Python Tests') {
             steps {
                 dir('employee_app') {
-                    bat 'pytest'
+                    sh 'pytest'
                 }
             }
         }
@@ -19,15 +19,16 @@ pipeline {
         stage('Java Tests') {
             steps {
                 dir('manager_app') {
-                    bat 'mvn test'
+                    sh 'mvn test'
                 }
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat 'docker compose build'
+                sh 'docker compose build'
             }
         }
     }
 }
+
