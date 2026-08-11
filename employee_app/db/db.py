@@ -1,13 +1,12 @@
 import sqlite3
-from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DB_PATH = PROJECT_ROOT / "expenses_system_db.db"
+DB_PATH = "/database/expenses_system_db.db"
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
 
 def init_db():
     with get_connection() as conn:
