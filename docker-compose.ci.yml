@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  employee-backend:
+    ports: []
+
+  manager-backend:
+    ports: []
+
+  frontend:
+    ports: []
+
+  selenium:
+    ports: []

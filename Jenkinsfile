@@ -12,9 +12,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'docker compose build --pull'
+                        sh 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci build --pull'
                     } else {
-                        bat 'docker compose build --pull'
+                        bat 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci build --pull'
                     }
                 }
             }
@@ -24,9 +24,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'docker compose up -d employee-backend manager-backend frontend selenium'
+                        sh 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci up -d employee-backend manager-backend frontend selenium'
                     } else {
-                        bat 'docker compose up -d employee-backend manager-backend frontend selenium'
+                        bat 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci up -d employee-backend manager-backend frontend selenium'
                     }
                 }
             }
@@ -36,9 +36,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'docker compose run --rm employee-backend python -m pytest'
+                        sh 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci run --rm employee-backend python -m pytest'
                     } else {
-                        bat 'docker compose run --rm employee-backend python -m pytest'
+                        bat 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci run --rm employee-backend python -m pytest'
                     }
                 }
             }
@@ -69,9 +69,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'docker compose up -d'
+                        sh 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci up -d'
                     } else {
-                        bat 'docker compose up -d'
+                        bat 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci up -d'
                     }
                 }
             }
@@ -82,9 +82,9 @@ pipeline {
         always {
             script {
                 if (isUnix()) {
-                    sh 'docker compose down'
+                    sh 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci down --remove-orphans'
                 } else {
-                    bat 'docker compose down'
+                    bat 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci down --remove-orphans'
                 }
             }
         }
