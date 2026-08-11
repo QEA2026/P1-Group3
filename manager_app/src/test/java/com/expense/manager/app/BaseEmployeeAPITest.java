@@ -168,7 +168,11 @@ public abstract class BaseEmployeeAPITest {
 
     @BeforeAll
     static void setup() {
-        RestAssured.baseURI = "http://127.0.0.1:8080"; // change this when URI changes!
+        String baseUri = System.getProperty("employee.base.url", System.getenv("EMPLOYEE_BASE_URL"));
+        if (baseUri == null || baseUri.isBlank()) {
+            baseUri = "http://employee-backend:8080";
+        }
+        RestAssured.baseURI = baseUri; // change this when URI changes!
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
 
         dirtyExpenses = new ArrayList<>();

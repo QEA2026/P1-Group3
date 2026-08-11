@@ -25,7 +25,9 @@ public class GenerateReportSteps {
 
     private WebDriver driver;
 
-    private static final String LOGIN_URL = "http://localhost:5173/";
+    private static final String LOGIN_URL = System.getProperty("frontend.url", System.getenv("FRONTEND_URL")) != null && !System.getProperty("frontend.url", System.getenv("FRONTEND_URL")).isBlank()
+            ? System.getProperty("frontend.url", System.getenv("FRONTEND_URL"))
+            : "http://frontend:5173/";
 
     private String selectedStatus;
     private String selectedMonth;

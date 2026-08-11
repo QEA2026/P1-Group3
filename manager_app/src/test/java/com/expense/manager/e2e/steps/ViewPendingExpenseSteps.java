@@ -17,11 +17,11 @@ import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.openqa.selenium.chrome.ChromeDriver;
-
 public class ViewPendingExpenseSteps {
     private WebDriver driver;
-    private static final String LOGIN_URL = "http://localhost:5173/";
+    private static final String LOGIN_URL = System.getProperty("frontend.url", System.getenv("FRONTEND_URL")) != null && !System.getProperty("frontend.url", System.getenv("FRONTEND_URL")).isBlank()
+            ? System.getProperty("frontend.url", System.getenv("FRONTEND_URL"))
+            : "http://frontend:5173/";
     private LoginPage loginPage;
     private EmployeeDashboardPage employeeDashboardPage;
     private SubmitExpensePage submitExpensePage;

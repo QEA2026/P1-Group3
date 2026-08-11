@@ -22,7 +22,9 @@ import io.cucumber.java.en.When;
 
 public class LoginSteps {
     private WebDriver driver;
-    private static final String LOGIN_URL = "http://localhost:5173/";
+    private static final String LOGIN_URL = System.getProperty("frontend.url", System.getenv("FRONTEND_URL")) != null && !System.getProperty("frontend.url", System.getenv("FRONTEND_URL")).isBlank()
+            ? System.getProperty("frontend.url", System.getenv("FRONTEND_URL"))
+            : "http://frontend:5173/";
     private LoginPage loginPage;
 
     @Before(order = 1)

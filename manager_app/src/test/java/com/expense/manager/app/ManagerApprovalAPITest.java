@@ -38,7 +38,7 @@ public class ManagerApprovalAPITest {
                 .contentType(ContentType.JSON)
                 .body(employeeRequestBody)
                 .when()
-                .post("http://127.0.0.1:9090/users")
+                .post("/users")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -47,7 +47,7 @@ public class ManagerApprovalAPITest {
                 .contentType(ContentType.JSON)
                 .body(managerRequestBody)
                 .when()
-                .post("http://127.0.0.1:9090/users")
+                .post("/users")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -68,7 +68,11 @@ public class ManagerApprovalAPITest {
 
     @BeforeAll
     static void setUp() {
-        RestAssured.baseURI = "http://127.0.0.1:9090";
+        String baseUri = System.getProperty("manager.base.url", System.getenv("MANAGER_BASE_URL"));
+        if (baseUri == null || baseUri.isBlank()) {
+            baseUri = "http://manager-backend:9090";
+        }
+        RestAssured.baseURI = baseUri;
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         initializeTestUsers();
         employeeRequests = new EmployeeRequests(TEST_MANAGER);

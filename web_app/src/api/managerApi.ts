@@ -6,7 +6,7 @@ import type {
   Approval,
 } from '../types/models';
 
-const BASE_URL = 'http://localhost:9090';
+const BASE_URL = '/api/manager';
 
 export const managerApi = {
   // ====================

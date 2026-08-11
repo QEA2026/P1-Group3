@@ -14,7 +14,9 @@ import java.util.Map;
 import static io.restassured.RestAssured.given;
 
 public class EmployeeRequests {
-    private static final String employeeURI = "http://127.0.0.1:8080";
+    private static final String employeeURI = System.getProperty("employee.base.url", System.getenv("EMPLOYEE_BASE_URL")) != null && !System.getProperty("employee.base.url", System.getenv("EMPLOYEE_BASE_URL")).isBlank()
+            ? System.getProperty("employee.base.url", System.getenv("EMPLOYEE_BASE_URL"))
+            : "http://employee-backend:8080";
     private List<Expense> dirtyExpenses;
     private List<Approval> dirtyApprovals;
     private final User manager;

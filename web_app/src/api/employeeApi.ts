@@ -6,7 +6,7 @@ import type {
   Approval,
 } from '../types/models';
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = '/api/employee';
 
 export const employeeApi = {
   register: async (

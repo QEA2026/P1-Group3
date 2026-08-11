@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class ManagerApiClient {
     //private static final String DEFAULT_BASE_URL = "http://100.84.247.62:9090";
-    private static final String DEFAULT_BASE_URL = "http://localhost:9090";
+    private static final String DEFAULT_BASE_URL = "http://manager-backend:9090";
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final String baseUrl;
