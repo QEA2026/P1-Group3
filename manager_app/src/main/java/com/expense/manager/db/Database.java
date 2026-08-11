@@ -17,14 +17,28 @@ public class Database {
         return DriverManager.getConnection("jdbc:sqlite:" + getDatabasePath());
     }
 
-    private static String getDatabasePath() {
-        Path projectRoot = findProjectRoot();
-        if (projectRoot != null) {
-            return projectRoot.resolve(DB_NAME).toString();
-        }
+    // private static String getDatabasePath() {
+    //     Path projectRoot = findProjectRoot();
+    //     if (projectRoot != null) {
+    //         return projectRoot.resolve(DB_NAME).toString();
+    //     }
 
-        return Paths.get(DB_NAME).toAbsolutePath().toString();
+    //     return Paths.get(DB_NAME).toAbsolutePath().toString();
+    // }
+
+    private static String getDatabasePath() {
+    String override = System.getenv("DB_PATH");
+    if (override != null) {
+        return override;
     }
+
+    Path projectRoot = findProjectRoot();
+    if (projectRoot != null) {
+        return projectRoot.resolve(DB_NAME).toString();
+    }
+
+    return Paths.get(DB_NAME).toAbsolutePath().toString();
+}
 
     private static Path findProjectRoot() {
         Path path = Paths.get("").toAbsolutePath();

@@ -1,0 +1,35 @@
+services:
+  employee-app:
+    build:
+      context: .
+      dockerfile: employee_app/Dockerfile
+    ports:
+      - "8001:8080"
+    environment:
+      - DB_PATH=/data/expenses_system_db.db
+    volumes:
+      - shared_db_data:/data
+    restart: unless-stopped
+
+  manager-app:
+    build:
+      context: .
+      dockerfile: manager_app/Dockerfile
+    ports:
+      - "8002:9090"
+    environment:
+      - DB_PATH=/data/expenses_system_db.db
+    volumes:
+      - shared_db_data:/data
+    restart: unless-stopped
+
+  web-app:
+    build:
+      context: .
+      dockerfile: web_app/Dockerfile
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+volumes:
+  shared_db_data:

@@ -1,8 +1,15 @@
 import sqlite3
 from pathlib import Path
 
+# PROJECT_ROOT = Path(__file__).resolve().parents[2]
+# DB_PATH = PROJECT_ROOT / "expenses_system_db.db"
+
+import os
+import sqlite3
+from pathlib import Path
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DB_PATH = PROJECT_ROOT / "expenses_system_db.db"
+DB_PATH = Path(os.environ.get("DB_PATH", str(PROJECT_ROOT / "expenses_system_db.db")))
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
