@@ -8,25 +8,27 @@ pipeline {
             }
         }
 
+        stage('Build Images') {
+            steps {
+                sh 'docker compose build'
+            }
+        }
+
         stage('Python Tests') {
             steps {
-                dir('employee_app') {
-                    sh 'pytest'
-                }
+                sh 'docker compose run --rm employee python -m pytest'
             }
         }
 
         stage('Java Tests') {
             steps {
-                dir('manager_app') {
-                    sh 'mvn test'
-                }
+                sh 'docker compose run --rm manager mvn test'
             }
         }
 
-        stage('Docker Build') {
+        stage('Deploy') {
             steps {
-                sh 'docker compose build'
+                sh 'docker compose up -d'
             }
         }
     }
