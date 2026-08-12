@@ -7,6 +7,19 @@ pipeline {
                 checkout scm
             }
         }
+    stage('Debug Compose Config') {
+        steps {
+            script {
+                if (isUnix()) {
+                    sh 'ls -la docker-compose*.yml'
+                    sh 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci config'
+                } else {
+                    bat 'dir docker-compose*.yml'
+                    bat 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci config'
+                }
+            }
+        }
+    }
 
         stage('Build Images') {
             steps {
