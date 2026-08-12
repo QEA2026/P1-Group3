@@ -59,19 +59,39 @@ pipeline {
 
         stage('Java Unit Tests') {
             steps {
-                script {
-                    if (isUnix()) {
-                        sh '''
-                            docker compose -f docker-compose.yml -f docker-compose.ci.yml \
-                            -p p1group3ci run --rm manager-backend \
-                            mvn test -Dtest='!*RunCucumberTest'
-                        '''
-                    } else {
-                        bat '''
-                            docker compose -f docker-compose.yml -f docker-compose.ci.yml \
-                            -p p1group3ci run --rm manager-backend \
-                            mvn test -Dtest="!*RunCucumberTest"
-                        '''
+                dir('manager_app') {
+                    script {
+                        if (isUnix()) {
+                            sh '''
+                                echo "=== manager_app contents ==="
+                                pwd
+                                ls -la
+
+                                echo "=== POM ==="
+                                ls -la pom.xml
+
+                                echo "=== Running Maven tests ==="
+
+                                docker run --rm \
+                                    -v "$PWD:/app" \
+                                    -w /app \
+                                    maven:3.9.9-eclipse-temurin-21 \
+                                    mvn test -Dtest='!*RunCucumberTest'
+                            '''
+                        } else {
+                            bat '''
+                                echo === manager_app contents ===
+                                cd
+                                dir
+
+                                echo === POM ===
+                                dir pom.xml
+
+                                echo === Running Maven tests ===
+
+                                docker run --rm -v "%WORKSPACE%\\manager_app:/app" -w /app maven:3.9.9-eclipse-temurin-21 mvn test -Dtest="!*RunCucumberTest"
+                            '''
+                        }
                     }
                 }
             }
