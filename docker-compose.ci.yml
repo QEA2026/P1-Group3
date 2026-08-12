@@ -1,12 +1,16 @@
 services:
   employee-backend:
-    ports: []
+    ports:
+      - "8082:8080"
 
   manager-backend:
-    ports: []
+    ports:
+      - "9091:9090"
 
   frontend:
-    ports: []
+    ports:
+      - "5174:5173"
 
   selenium:
-    ports: []
+    ports:
+      - "4445:4444"
