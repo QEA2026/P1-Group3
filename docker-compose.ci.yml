@@ -1,16 +1,16 @@
 services:
   employee-backend:
-    ports:
+    ports: !reset
       - "8082:8080"
 
   manager-backend:
-    ports:
+    ports: !reset
       - "9091:9090"
 
   frontend:
-    ports:
+    ports: !reset
       - "5174:5173"
 
   selenium:
-    ports:
+    ports: !reset
       - "4445:4444"
