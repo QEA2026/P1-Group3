@@ -67,6 +67,8 @@ pipeline {
                                 -t manager-java-tests \
                                 manager_app
 
+                            docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci logs manager-backend
+
                             docker run --rm \
                                 --network p1group3ci_default \
                                 manager-java-tests
@@ -74,6 +76,9 @@ pipeline {
                     } else {
                         bat '''
                             docker build -f manager_app\\Dockerfile.test -t manager-java-tests manager_app
+
+                            docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci logs manager-backend
+
                             docker run --rm --network p1group3ci_default manager-java-tests
                         '''
                     }
@@ -81,18 +86,18 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                script {
-                    if (isUnix()) {
-                        sh 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci up -d'
-                    } else {
-                        bat 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci up -d'
+                stage('Deploy') {
+                    steps {
+                        script {
+                            if (isUnix()) {
+                                sh 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci up -d'
+                            } else {
+                                bat 'docker compose -f docker-compose.yml -f docker-compose.ci.yml -p p1group3ci up -d'
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
 
     post {
         always {
