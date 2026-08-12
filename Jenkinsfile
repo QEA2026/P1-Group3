@@ -67,12 +67,14 @@ pipeline {
                                 -t manager-java-tests \
                                 manager_app
 
-                            docker run --rm manager-java-tests
+                            docker run --rm \
+                                --network p1group3ci_default \
+                                manager-java-tests
                         '''
                     } else {
                         bat '''
                             docker build -f manager_app\\Dockerfile.test -t manager-java-tests manager_app
-                            docker run --rm manager-java-tests
+                            docker run --rm --network p1group3ci_default manager-java-tests
                         '''
                     }
                 }
