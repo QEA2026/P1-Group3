@@ -59,39 +59,21 @@ pipeline {
 
         stage('Java Unit Tests') {
             steps {
-                dir('manager_app') {
-                    script {
-                        if (isUnix()) {
-                            sh '''
-                                echo "=== manager_app contents ==="
-                                pwd
-                                ls -la
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            docker build \
+                                -f manager_app/Dockerfile.test \
+                                -t manager-java-tests \
+                                manager_app
 
-                                echo "=== POM ==="
-                                ls -la pom.xml
-
-                                echo "=== Running Maven tests ==="
-
-                                docker run --rm \
-                                    -v "$PWD:/app" \
-                                    -w /app \
-                                    maven:3.9.9-eclipse-temurin-21 \
-                                    mvn test -Dtest='!*RunCucumberTest'
-                            '''
-                        } else {
-                            bat '''
-                                echo === manager_app contents ===
-                                cd
-                                dir
-
-                                echo === POM ===
-                                dir pom.xml
-
-                                echo === Running Maven tests ===
-
-                                docker run --rm -v "%WORKSPACE%\\manager_app:/app" -w /app maven:3.9.9-eclipse-temurin-21 mvn test -Dtest="!*RunCucumberTest"
-                            '''
-                        }
+                            docker run --rm manager-java-tests
+                        '''
+                    } else {
+                        bat '''
+                            docker build -f manager_app\\Dockerfile.test -t manager-java-tests manager_app
+                            docker run --rm manager-java-tests
+                        '''
                     }
                 }
             }
